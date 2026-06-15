@@ -64,4 +64,29 @@ describe("scoreRound — Correlated Agreement", () => {
       expect(scores[id]!.slashed).toBe(true); // collusion does not pay: raw <= 0
     }
   });
+
+  it("rewards truthful Workers over a random reporter (~zero expected score)", () => {
+    // A single random draw can wander positive by chance; the real property is
+    // an expected-value one, so average over many Rounds.
+    const answerSpace = ["a", "b", "c"];
+    const honestIds = ["h1", "h2", "h3", "h4", "h5"];
+
+    const honestMeans: number[] = [];
+    const randomScores: number[] = [];
+    for (let seed = 1; seed <= 30; seed++) {
+      const workers: WorkerSpec[] = [
+        ...honestIds.map((id) => ({ id, strategy: honest(0.8) })),
+        { id: "rng", strategy: random },
+      ];
+      const scores = byWorker(scoreRound(buildRound({ answerSpace, numTasks: 16, workers, seed })));
+      honestMeans.push(mean(honestIds.map((id) => scores[id]!.raw)));
+      randomScores.push(scores["rng"]!.raw);
+    }
+
+    const honestAvg = mean(honestMeans);
+    const randomAvg = mean(randomScores);
+    expect(honestAvg).toBeGreaterThan(0.2); // truthful clearly rewarded
+    expect(randomAvg).toBeLessThan(honestAvg);
+    expect(Math.abs(randomAvg)).toBeLessThan(0.05); // noise earns ~nothing in expectation
+  });
 });

@@ -53,9 +53,10 @@ threshold who have posted the required Stake.
 _Avoid_: candidates, queue
 
 **Report**:
-A worker's submission for one Task: an **answer** (the worker's judgment) paired with a
-**prediction** (the worker's estimate of how peers will answer that Task). The atomic thing
-that gets paid.
+A Worker's **answer** (judgment) for one Task — the atomic thing that gets paid. No prediction
+component: multi-task Correlated Agreement is prediction-free, scoring purely from the empirical
+co-occurrence of answers across the Round's Tasks. (BTS-style prediction elicitation is the
+documented single-task fallback, unused because every Round is multi-task by construction.)
 _Avoid_: response, submission, vote
 
 ### Scoring & settlement
@@ -115,14 +116,14 @@ spaces keep honest agreement strong and full-disagreement scoring fair.
 _Avoid_: response set, options, label set
 
 **Commit**:
-The first phase of a Report. A Worker submits `hash(answer, prediction, salt)` before the commit
-deadline, binding their Report without revealing it — this is what enforces blind reporting.
+The first phase of a Report. A Worker submits `hash(answer, salt)` before the commit deadline,
+binding their answer without revealing it — this is what enforces blind reporting.
 _Avoid_: pledge
 
 **Reveal**:
 The second phase of a Report. After the commit deadline, the Worker submits the cleartext
-(answer, prediction, salt); the contract verifies it against the commit hash. Revealed Reports are
-public and immutable on-chain, which lets anyone independently recompute the scores.
+(answer, salt); the contract verifies it against the commit hash. Revealed Reports are public and
+immutable on-chain, which lets anyone independently recompute the scores.
 
 **Stake**:
 USDC a Worker posts to join a Round, at risk of slashing. Backs two guarantees: that the Worker

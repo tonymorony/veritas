@@ -1,6 +1,10 @@
 import { describe, it, expect } from "vitest";
 import { scoreRound } from "../src/scorer";
-import type { Round } from "../src/domain";
+import type { Round, WorkerScore } from "../src/domain";
+import { buildRound, honest, fixed, mean, type WorkerSpec } from "./synthetic";
+
+const byWorker = (scores: WorkerScore[]): Record<string, WorkerScore> =>
+  Object.fromEntries(scores.map((s) => [s.worker, s]));
 
 describe("scoreRound — Correlated Agreement", () => {
   it("returns one score per Worker, positive for Workers who genuinely correlate", () => {
@@ -22,5 +26,21 @@ describe("scoreRound — Correlated Agreement", () => {
     for (const s of scores) {
       expect(s.raw).toBeGreaterThan(0);
     }
+  });
+
+  it("rewards truthful Workers over an always-popular Worker", () => {
+    const answerSpace = ["a", "b", "c"];
+    const honestIds = ["h1", "h2", "h3", "h4", "h5"];
+    const workers: WorkerSpec[] = [
+      ...honestIds.map((id) => ({ id, strategy: honest(0.8) })),
+      { id: "pop", strategy: fixed("a") }, // always reports the popular "a"
+    ];
+
+    const round = buildRound({ answerSpace, numTasks: 12, workers, seed: 42 });
+    const scores = byWorker(scoreRound(round));
+
+    const honestMean = mean(honestIds.map((id) => scores[id]!.raw));
+    expect(honestMean).toBeGreaterThan(0); // truthful reporting is genuinely rewarded
+    expect(honestMean).toBeGreaterThan(scores["pop"]!.raw);
   });
 });

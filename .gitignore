@@ -1,0 +1,28 @@
+# Local Claude Code settings (per-machine)
+.claude/settings.local.json
+
+# Materialized agent skills — restore via: npx skills experimental_install
+.agents/
+
+# Secrets / env
+.env
+.env.*
+!.env.example
+
+# Node
+node_modules/
+dist/
+build/
+*.log
+npm-debug.log*
+pnpm-debug.log*
+
+# Foundry (contracts, added later)
+out/
+cache/
+broadcast/
+*/out/
+*/cache/
+
+# OS
+.DS_Store

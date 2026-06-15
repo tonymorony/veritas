@@ -129,10 +129,17 @@ _Avoid_: rate, fee, price
 
 **Settlement**:
 Paying out a Round. Each Report's payout is `base_reward × normalized_CA_score`, computed in bulk
-at round close, then *settled* as an individual per-report x402 nanopayment receipt (one on-chain
-transaction per Report). Stake slashed from sub-threshold Workers is redistributed pro-rata to the
-honest (above-threshold) Workers of the same Round.
-_Avoid_: payment, payout, disbursement
+at round close, then *settled* as an individual per-report Circle **Gateway nanopayment** (one
+on-chain transaction per Report). Not to be confused with x402 — see **Access payment**. Stake
+slashed from sub-threshold Workers is redistributed pro-rata to the honest (above-threshold)
+Workers of the same Round.
+_Avoid_: payment, payout, disbursement, x402
+
+**Access payment**:
+An **x402** (HTTP-402) pay-per-request charge at the API/MCP boundary — what an Agent pays to
+*post a Round* or *pull Leaderboard results*. Distinct from Settlement: x402 gates use of the
+service; nanopayments disburse Worker payouts.
+_Avoid_: gas, fee, settlement
 
 ### Reputation
 

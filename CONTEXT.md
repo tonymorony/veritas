@@ -71,6 +71,23 @@ Workers get their Stake back with no honesty slash and no Reputation change (neu
 who committed but did not reveal are still fully slashed. No payouts, no Leaderboard rows.
 _Avoid_: cancelled, failed, aborted
 
+**Correlated Agreement (CA)**:
+The multi-task peer-prediction rule that scores Reports. Over a Round's worker×task grid it builds
+a signed agreement matrix from answer co-occurrence and rewards answers that are *surprisingly
+common* (more frequent than peers predicted). Truthful, high-effort reporting is a strict
+equilibrium. Operates on **unordered categorical** answers — ordinal-aware scoring is deferred.
+_Avoid_: peer prediction, BTS (BTS is the conceptual fallback, not the production rule)
+
+**Normalized score**:
+A Report's raw CA score mapped affinely into `[0,1]` (and clamped) for payout: `payout =
+base_reward × normalized_score`. Raw CA can be negative (worse than chance).
+
+**Honesty threshold**:
+The score below which a Worker is partially slashed — set at the point corresponding to **raw
+CA ≤ 0** (no better than chance). Sub-threshold Workers forfeit **50%** of Stake (redistributed to
+honest Workers per Settlement).
+_Avoid_: cutoff, pass mark
+
 **Scorer**:
 The off-chain service that computes Correlated Agreement scores for a Round from its revealed
 Reports. It is verifiable, not trusted: its inputs are immutable on-chain and its algorithm is
@@ -91,9 +108,10 @@ rather than circular — every Round emits a real, useful row.
 _Avoid_: ranking, scoreboard, results
 
 **Answer space**:
-The fixed, discrete set of permitted answers for every Task in a Round (e.g. {1,2,3,4,5} for a
-helpfulness rating, or {A,B,C} for "best of three"). Homogeneous within a Round by construction,
-which is what keeps the Correlated Agreement co-occurrence matrix valid.
+The fixed, discrete set of permitted answers for every Task in a Round (e.g. {A,B,C} for "best of
+three", or a 3-point bad/ok/good scale). Homogeneous within a Round by construction. Kept
+deliberately **coarse (≤3–4 options)** in v1: CA treats answers as unordered categories, so coarse
+spaces keep honest agreement strong and full-disagreement scoring fair.
 _Avoid_: response set, options, label set
 
 **Commit**:

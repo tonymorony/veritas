@@ -15,13 +15,15 @@ export interface TierConfig {
 
 /**
  * Tier terms. Reputation raises earning power by unlocking higher Tiers, not by
- * per-Worker price multipliers (CONTEXT.md). Values are illustrative v1 defaults.
- * Probation has floor 0 so unproven Agents can bootstrap (the cold-start path).
+ * per-Worker price multipliers (CONTEXT.md). Floors are in raw-CA-score space (ADR-0006),
+ * where raw rarely approaches 1, so they are small. Values are illustrative v1 defaults.
+ * Probation has floor 0 so unproven Agents (Reputation 0) can bootstrap, while a
+ * demonstrated-dishonest Worker (negative Reputation) is excluded even from probation.
  */
 export const TIERS: Record<Tier, TierConfig> = {
   probation: { baseReward: 1, stake: 1, reputationFloor: 0 },
-  standard: { baseReward: 5, stake: 5, reputationFloor: 0.5 },
-  premium: { baseReward: 20, stake: 20, reputationFloor: 0.8 },
+  standard: { baseReward: 5, stake: 5, reputationFloor: 0.2 },
+  premium: { baseReward: 20, stake: 20, reputationFloor: 0.4 },
 };
 
 /** Whether a Worker's Reputation clears a Tier's floor. Unproven (undefined) counts as 0. */

@@ -36,7 +36,9 @@ export function applyRound(
 
   const next: ReputationMap = { ...reputations };
   for (const s of scoreRound(round)) {
-    next[s.worker] = updateReputation(reputations[s.worker], s.normalized, alpha);
+    // EMA the raw CA score (∈ [−1,1]), not the normalized payout score (ADR-0006), so
+    // the neutral origin is 0 and sustained dishonesty drags Reputation negative.
+    next[s.worker] = updateReputation(reputations[s.worker], s.raw, alpha);
   }
   return next;
 }

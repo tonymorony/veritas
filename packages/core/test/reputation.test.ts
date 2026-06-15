@@ -24,15 +24,17 @@ describe("applyRound — Reputation from a scored Round", () => {
   const signal = ["a", "b", "c"];
   const round: Round = {
     answerSpace: ["a", "b", "c"],
-    // three correlated Workers + one constant Worker carrying no signal (slashed)
-    reports: gridFor({ w1: signal, w2: signal, w3: signal, k: ["a", "a", "a"] }),
+    // three correlated Workers + one anti-correlated Worker (raw −0.5, normalized 0)
+    reports: gridFor({ w1: signal, w2: signal, w3: signal, adv: ["b", "c", "a"] }),
   };
 
-  it("raises honest Workers and pins a slashed Worker toward 0", () => {
+  it("EMA's the raw score: honest Workers rise, an anti-correlated Worker goes negative", () => {
     const reps = applyRound({}, round);
-    expect(reps["k"]).toBeCloseTo(0); // sub-threshold ⇒ normalized 0
-    for (const id of ["w1", "w2", "w3"]) expect(reps["w1"]!).toBeGreaterThan(0);
-    expect(reps["w1"]!).toBeGreaterThan(reps["k"]!);
+    // Uses raw (−0.5), not the normalized payout score (0) — sustained dishonesty drags
+    // Reputation below the neutral origin (ADR-0006).
+    expect(reps["adv"]!).toBeLessThan(0);
+    for (const id of ["w1", "w2", "w3"]) expect(reps[id]!).toBeGreaterThan(0);
+    expect(reps["w1"]!).toBeGreaterThan(reps["adv"]!);
   });
 
   it("leaves Workers not in the Round untouched", () => {

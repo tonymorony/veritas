@@ -1,0 +1,99 @@
+# Proof-of-Honesty
+
+The trust and settlement layer for an agent-to-agent task marketplace. Agents pay each other
+for subjective work that has no verifiable ground truth; payment is gated by a peer-prediction
+mechanism that makes honest, high-effort reporting the dominant strategy.
+
+## Language
+
+### Marketplace
+
+**Task**:
+One item needing a single subjective judgment (e.g. "rate this answer's helpfulness 1–5").
+The thing a requester posts.
+_Avoid_: job, question, item, assignment
+
+**Requester**:
+An agent that posts Tasks and funds their reward + the round's escrow.
+_Avoid_: client, poster, buyer
+
+**Worker**:
+An agent that answers Tasks by submitting Reports.
+_Avoid_: solver, responder, labeller
+
+**Assignment**:
+The protocol's random draw of M Workers from the eligible pool onto a Round. Random (not
+Worker-chosen and not Requester-chosen) so colluders cannot arrange to land in the same Round and
+Requesters cannot hand-pick friendly Workers. Randomness source is `prevrandao` for v1, upgradeable
+to a VRF.
+_Avoid_: allocation, matching, claim
+
+**Eligible pool**:
+The set of Workers permitted to be assigned to a given Round — those above the Round's reputation
+threshold who have posted the required Stake.
+_Avoid_: candidates, queue
+
+**Report**:
+A worker's submission for one Task: an **answer** (the worker's judgment) paired with a
+**prediction** (the worker's estimate of how peers will answer that Task). The atomic thing
+that gets paid.
+_Avoid_: response, submission, vote
+
+### Scoring & settlement
+
+**Scorer**:
+The off-chain service that computes Correlated Agreement scores for a Round from its revealed
+Reports. It is verifiable, not trusted: its inputs are immutable on-chain and its algorithm is
+deterministic and open, so anyone can recompute every payout. Holds no privileged secret.
+_Avoid_: oracle, judge, evaluator, verifier
+
+**Round**:
+The scoring and settlement unit: one Requester's batch of N homogeneous Tasks (all sharing a
+single answer space), worked by a pool of M recruited Workers. The N×M grid is what Correlated
+Agreement scores. Scoring runs once at round close; payouts for every Report in the round are
+computed then. A Round is posted as a whole — Requesters do not post Tasks individually.
+_Avoid_: batch, epoch, session
+
+**Answer space**:
+The fixed, discrete set of permitted answers for every Task in a Round (e.g. {1,2,3,4,5} for a
+helpfulness rating, or {A,B,C} for "best of three"). Homogeneous within a Round by construction,
+which is what keeps the Correlated Agreement co-occurrence matrix valid.
+_Avoid_: response set, options, label set
+
+**Commit**:
+The first phase of a Report. A Worker submits `hash(answer, prediction, salt)` before the commit
+deadline, binding their Report without revealing it — this is what enforces blind reporting.
+_Avoid_: pledge
+
+**Reveal**:
+The second phase of a Report. After the commit deadline, the Worker submits the cleartext
+(answer, prediction, salt); the contract verifies it against the commit hash. Revealed Reports are
+public and immutable on-chain, which lets anyone independently recompute the scores.
+
+**Stake**:
+USDC a Worker posts to join a Round, at risk of slashing. Backs two guarantees: that the Worker
+will reveal, and that the Worker will report honestly (sub-threshold scores forfeit part of it).
+_Avoid_: bond, deposit, collateral
+
+**Slash**:
+Confiscating part or all of a Worker's Stake. Triggered by committing without revealing (full
+slash) or by a sub-threshold honesty score (partial slash).
+_Avoid_: penalty, burn, forfeit
+
+**Settlement**:
+Paying out a Report. Payouts are *computed* in bulk at round close but *settled* as individual
+per-report x402 nanopayment receipts (one on-chain transaction per Report).
+_Avoid_: payment, payout, disbursement
+
+### Reputation
+
+**Reputation**:
+A Worker's running honesty record — an EMA of their per-Round CA scores, written to ERC-8004. It
+gates which Rounds the Worker is eligible for and sets the Worker's price multiplier.
+_Avoid_: rating, trust score, karma
+
+**Probation Round**:
+A low-reward, low-Stake Round, flagged as such, that unproven agents (no Reputation yet) are
+eligible for. Clearing a few Probation Rounds bootstraps an agent's Reputation so it can be
+assigned to higher-value Rounds — the cold-start path.
+_Avoid_: trial, onboarding round

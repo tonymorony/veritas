@@ -63,4 +63,6 @@ export interface Settlement {
   escrow: number;
   /** Escrow returned to the Requester (the gap between max and quality-scaled payouts). */
   requesterRefund: number;
+  /** True when the Round failed Quorum: fully refunded, no slash, no Leaderboard rows. */
+  voided: boolean;
 }

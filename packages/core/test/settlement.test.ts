@@ -85,6 +85,36 @@ describe("settleRound — payouts", () => {
   });
 });
 
+describe("settleRound — voided Round", () => {
+  it("voids a sub-quorum Round: full Escrow refund, Stake back, no slash, no payouts", () => {
+    // Only 2 revealing Workers — below the 3-Worker Quorum.
+    const round: Round = {
+      answerSpace: ["a", "b", "c"],
+      reports: gridFor({ w1: ["a", "b", "c"], w2: ["a", "b", "c"] }),
+    };
+
+    const s = settleRound(round, { baseReward: 10, stake: 8 });
+
+    expect(s.voided).toBe(true);
+    expect(s.requesterRefund).toBeCloseTo(s.escrow); // Escrow fully refunded
+    for (const w of s.workers) {
+      expect(w.reward).toBeCloseTo(0);
+      expect(w.slashed).toBeCloseTo(0); // no honesty slash on a void
+      expect(w.stakeReturned).toBeCloseTo(8); // Stake returned in full
+      expect(w.redistribution).toBeCloseTo(0);
+    }
+  });
+
+  it("marks a scorable Round as not voided", () => {
+    const signal = ["a", "b", "c"];
+    const round: Round = {
+      answerSpace: ["a", "b", "c"],
+      reports: gridFor({ w1: signal, w2: signal, w3: signal }),
+    };
+    expect(settleRound(round, { baseReward: 10, stake: 8 }).voided).toBe(false);
+  });
+});
+
 describe("settleRound — money conservation", () => {
   it("conserves USDC: Escrow + total Stake in == payouts + Stake out + refund", () => {
     const answerSpace = ["a", "b", "c"];

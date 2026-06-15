@@ -30,17 +30,37 @@ anti-front-running / liveness proof, not where the scores come from.
   Workers = accts 1..N), mints MockUSDC, and replays every Round as real txs. This is the
   default "real on-chain" demo, since it needs no funded wallet or RPC.
 - `testnet` — connects to `CHAIN_RPC_URL` with `DEPLOYER_PRIVATE_KEY` and pre-deployed
-  contract addresses (no auto-deploy). For the demo the single deployer key acts as
-  Requester/operator/Worker participant; production would fund per-Worker keys.
+  contract addresses (no auto-deploy). The deployer key acts as Requester + operator;
+  Workers are a separate mnemonic-derived pool (`VERITAS_WORKER_MNEMONIC`), funded lazily
+  from the deployer.
+
+### Verified on Arc testnet
+
+Settlement is live on **Arc testnet (chainId 5042002)**, not just local anvil. Deployed:
+
+- MockUSDC `0x73544D772f4122Fe326115b57899DC020cf3B9d6`
+- ReputationRegistry `0x234c1287B7F589eCE430ccaAdC2d30e0CBe5968e`
+- TaskEscrow `0x925DE1312aeA15C1af1bEfe262b0BBAF3e7A208a`
+
+A 5-Worker Round settled in one real `settle` tx
+`0xb904a61c73163c088d0c9693abb0a1837de08ad6443f92a5cd1055d4985d92c2` (success, block
+47288941). Real on-chain effects: USDC payouts (an honest Worker received +23.2 USDC =
+baseReward 5 × numTasks 8 × normalized 0.580), Stake returned, and the Worker's new
+reputation written on-chain (0.398 on the 1e6 scale).
 
 ## Consequences
 
 - **First real money movement.** The dashboard's Live-server mode now shows real tx hashes,
   an `on-chain · <chainId>` provenance chip, and real USDC balance deltas — alongside the
   existing `x402 · access paid` boundary gate (ADR-0008). The Circle feed is no longer chrome.
-- **Arc testnet is a config step, not a code change.** `CHAIN_MODE=testnet` + a funded key +
-  RPC + canonical USDC address is all that stands between the local demo and Arc; the
-  settlement code is identical. (Per-Worker funded keys are the one production gap.)
+- **Arc testnet is the same settlement code as `local`.** `CHAIN_MODE=testnet` + RPC +
+  contract addresses is all that differs; the settlement code is identical. Two testnet
+  realities surfaced and are resolved (commit 4930994): (1) Arc, a regulated Circle chain,
+  blocks anvil's well-known public keys as transaction senders, so testnet Workers are
+  derived from a separate project mnemonic (`VERITAS_WORKER_MNEMONIC`) and funded lazily from
+  the deployer (gas top-up + open MockUSDC mint), idempotent via balance checks; (2) the
+  off-chain runner restarts `roundId` at 0 each boot, so on-chain round ids are namespaced by
+  a per-process base to avoid `RoundExists` on a persistent chain.
 - **The contract is a settlement *checker*, not a re-scorer.** It trusts the operator for the
   CA scores (verifiable-not-trusted, ADR-0001) but independently enforces conservation and
   the slash/redistribution rules, so a buggy or malicious operator cannot create or destroy

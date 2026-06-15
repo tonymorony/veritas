@@ -55,18 +55,35 @@ Watch the header: alongside **x402 · access paid** you now get an **on-chain ·
 
 ## Going to Arc testnet
 
-Testnet is a **config step, not a code change** — the settlement code is identical to `local`. Deploy the three contracts to Arc, then set:
+This is **verified live, not theoretical**. The settlement layer ran a real Round on **Arc testnet (chainId 5042002)**, settled in one on-chain `settle` transaction. Testnet is the same settlement code as `local` — only RPC + contract addresses differ.
+
+Deployed contracts (Arc testnet):
+
+| Contract | Address |
+| --- | --- |
+| MockUSDC | `0x73544D772f4122Fe326115b57899DC020cf3B9d6` |
+| ReputationRegistry | `0x234c1287B7F589eCE430ccaAdC2d30e0CBe5968e` |
+| TaskEscrow | `0x925DE1312aeA15C1af1bEfe262b0BBAF3e7A208a` |
+
+A 5-Worker Round settled in one `settle` tx `0xb904a61c73163c088d0c9693abb0a1837de08ad6443f92a5cd1055d4985d92c2` (success, block 47288941). Real effects on chain: USDC payouts (an honest Worker received **+23.2 USDC** = `baseReward 5 × numTasks 8 × normalized 0.580`), Stake returned, and the Worker's new [Reputation](/core-concepts#reputation) written on-chain (0.398 on the 1e6 scale).
+
+Point the same code at Arc by setting:
 
 ```bash
 CHAIN_MODE=testnet
 CHAIN_RPC_URL=https://<arc-rpc-endpoint>
-DEPLOYER_PRIVATE_KEY=0x...            # funded with testnet gas + USDC
+DEPLOYER_PRIVATE_KEY=0x...            # Requester + operator, funded with gas + USDC
+VERITAS_WORKER_MNEMONIC="..."         # the Worker pool (see below)
 CHAIN_USDC_ADDRESS=0x...              # canonical USDC on Arc
 CHAIN_REPUTATION_ADDRESS=0x...
 CHAIN_ESCROW_ADDRESS=0x...
 ```
 
-For the demo the single deployer key acts as Requester, operator, and Worker participant; a production deployment would fund a key per Worker. That per-Worker funding is the one real gap between this demo and a production Arc deployment.
+Two testnet realities differ from `local` and shaped this setup:
+
+- **Workers come from a project mnemonic, not anvil's keys.** Arc is a regulated Circle chain and blocks anvil's well-known public keys as transaction senders. So testnet Workers are derived from a separate `VERITAS_WORKER_MNEMONIC` instead of anvil's deterministic accounts.
+- **Lazy per-Worker funding.** The deployer key acts as Requester + operator; each Worker is funded on demand from the deployer — a gas top-up plus an open MockUSDC mint, idempotent via balance checks so re-runs don't double-fund.
+- **Round ids are namespaced.** The off-chain runner restarts `roundId` at 0 each boot, so on-chain round ids are offset by a per-process base to avoid `RoundExists` on a persistent chain.
 
 ## How it's verified
 

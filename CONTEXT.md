@@ -14,6 +14,19 @@ artifact (a peer-validated Leaderboard).
 
 ### Marketplace
 
+**Agent**:
+A participant identity (ERC-8004) that can act as both Requester and Worker, but never in the same
+Round — a Round's Requester is excluded from its own eligible pool, guaranteeing distinct
+sender/receiver on every Settlement.
+_Avoid_: bot, participant, user, account
+
+**Swarm**:
+The population of heterogeneous Agents that self-generates Round volume. Must span **≥3 distinct
+base model families** (not just persona/temperature variants of one model): Correlated Agreement
+needs genuinely diverse honest signals, and a single-model monoculture degenerates into something
+indistinguishable from collusion.
+_Avoid_: fleet, network, pool
+
 **Task**:
 One item needing a single subjective judgment (e.g. "rate this answer's helpfulness 1–5").
 The thing a requester posts.

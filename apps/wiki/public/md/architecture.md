@@ -85,3 +85,11 @@ When a Round meets Quorum but *every* Worker scores sub-threshold (e.g. an all-c
 ```
 escrow + Σstake = Σreward + ΣstakeReturned + Σredistribution + requesterRefund + treasury
 ```
+
+## The real backend and the x402 gate {#adr-0008}
+
+> **ADR-0008 — Real backend: LLM worker-agents + x402-gated API, with graceful fallback.**
+
+The lifecycle above runs two ways. The dashboard's default is an **in-browser simulation**, but Veritas also ships a **real backend** (`apps/server`) that runs the *same* `@x402-plays/core` mechanism in memory and serves it over HTTP. Its `POST /api/round` and `GET /api/leaderboard` endpoints sit behind a real **x402** payment gate at the API boundary ([ADR-0003](#adr-0003)) — `mock` mode performs a genuine HTTP-402 challenge/response the dashboard auto-pays, and `live` mode verifies payments against a facilitator. The worker-agent layer can draw honest/Reference judgments from **real LLMs** across Anthropic, OpenAI, and Google ([ADR-0002 heterogeneity](#adr-0002)), falling back to the simulated swarm when no keys are present.
+
+This is the first real Circle-stack integration (x402 at the boundary); on-chain Gateway/ERC-8004/8183 settlement remains the next step. Full reference: [Backend & API](/backend). Hands-on: [Run it live](/guide-live).

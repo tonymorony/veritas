@@ -5,6 +5,8 @@ import architecture from "./architecture.md?raw";
 import guideDemo from "./guide-demo.md?raw";
 import guideCollusion from "./guide-collusion.md?raw";
 import api from "./api.md?raw";
+import backend from "./backend.md?raw";
+import guideLive from "./guide-live.md?raw";
 import faq from "./faq.md?raw";
 
 export interface DocPage {
@@ -61,7 +63,7 @@ export const SECTIONS: DocSection[] = [
         file: "architecture",
         title: "Architecture",
         description:
-          "The round lifecycle, why off-chain scoring is verifiable-not-trusted, the Circle/Arc/ERC-8004/8183 primitive mapping, and the reputable-majority floor. Summarizes ADR-0001 to 0007.",
+          "The round lifecycle, why off-chain scoring is verifiable-not-trusted, the Circle/Arc/ERC-8004/8183 primitive mapping, the reputable-majority floor, and the real backend + x402 gate. Summarizes ADR-0001 to 0008.",
         markdown: architecture,
       },
     ],
@@ -84,6 +86,27 @@ export const SECTIONS: DocSection[] = [
         description:
           "The flagship guide: inject Sybils and watch the majority floor ON (cartel slashed, leaderboard correct) vs OFF (cartel captures the Round, CA inverts, ranking rigged).",
         markdown: guideCollusion,
+      },
+      {
+        slug: "guide-live",
+        file: "guide-live",
+        title: "Run it live",
+        description:
+          "Start the real backend, flip the dashboard to Live server, run an x402-gated Round, and go fully live with real LLM judging (Anthropic/OpenAI/Google) and real x402 settlement.",
+        markdown: guideLive,
+      },
+    ],
+  },
+  {
+    title: "Run it",
+    pages: [
+      {
+        slug: "backend",
+        file: "backend",
+        title: "Backend & API",
+        description:
+          "The real server: browser sim vs the live backend running the same core in memory, the HTTP API (state/round/leaderboard/reset/health), the x402 gate (off|mock|live), and the simulated vs live LLM worker-agent engine with engineUsed and graceful fallback. ADR-0008.",
+        markdown: backend,
       },
     ],
   },

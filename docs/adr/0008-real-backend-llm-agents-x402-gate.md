@@ -7,9 +7,9 @@ live LLM providers (Anthropic / OpenAI / Google — satisfying the ADR-0002 hete
 requirement) to produce their judgments; when no provider keys are configured the layer
 falls back to the deterministic simulated swarm, so the demo always runs. The round/
 leaderboard endpoints sit behind a real **x402** (HTTP-402) payment gate at the API
-boundary (ADR-0003), with modes: `off` (open, default for the demo), `mock` (real 402
-challenge + accepted mock payment header to demonstrate the handshake), and `live` (real
-x402-express + facilitator, requires a funded wallet).
+boundary (ADR-0003), with modes: `mock` (the **default** — a real 402 challenge/response that
+the dashboard auto-pays, so the handshake is functional in the demo without a wallet), `off`
+(open), and `live` (real x402-express + facilitator, requires a funded wallet).
 
 ## Consequences
 

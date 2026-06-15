@@ -30,7 +30,17 @@ export interface ServerConfig {
   deployerPrivateKey?: string;
   /** Pre-deployed contract addresses for testnet mode. */
   chainAddresses: ChainAddresses;
+  /**
+   * BIP-39 mnemonic the testnet Worker pool is derived from. NOT anvil's well-known phrase:
+   * regulated testnets (Arc) blocklist those public keys as senders, so testnet Workers need
+   * fresh addresses. Funded from the deployer at round time. Override per deployment.
+   */
+  workerMnemonic: string;
 }
+
+/** Default testnet Worker mnemonic (demo-only; override with VERITAS_WORKER_MNEMONIC). */
+const DEFAULT_WORKER_MNEMONIC =
+  "science arrow boat tip acid office fit valid lecture open eager immune";
 
 export function loadConfig(env: NodeJS.ProcessEnv = process.env): ServerConfig {
   // Default to `mock`: the x402 gate performs a real 402 challenge/response handshake on
@@ -55,5 +65,6 @@ export function loadConfig(env: NodeJS.ProcessEnv = process.env): ServerConfig {
       reputation: env.CHAIN_REPUTATION_ADDRESS,
       escrow: env.CHAIN_ESCROW_ADDRESS,
     },
+    workerMnemonic: env.VERITAS_WORKER_MNEMONIC ?? DEFAULT_WORKER_MNEMONIC,
   };
 }

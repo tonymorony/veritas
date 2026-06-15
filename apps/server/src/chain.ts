@@ -27,6 +27,7 @@ import {
   http,
   encodeAbiParameters,
   keccak256,
+  parseEther,
   toHex,
   type PublicClient,
   type WalletClient,
@@ -69,9 +70,16 @@ export class ChainSettler {
   /** Worker signer pool, indexed; assigned workers map onto these by position. */
   private workerSigners: Signer[] = [];
   private initPromise?: Promise<void>;
+  /**
+   * Per-process base for on-chain Round ids. The off-chain runner restarts `roundId` at 0 each
+   * boot, but on a persistent testnet a re-used id reverts with RoundExists; namespacing by the
+   * process start time keeps ids unique across restarts.
+   */
+  private readonly roundIdBase: bigint;
 
   constructor(config: ServerConfig) {
     this.config = config;
+    this.roundIdBase = config.chainMode === "testnet" ? BigInt(Date.now()) * 1_000n : 0n;
   }
 
   /** Idempotent: connect (and for `local`, deploy + fund) exactly once. */
@@ -94,7 +102,8 @@ export class ChainSettler {
     const chainId = await this.publicClient.getChainId();
 
     if (this.config.chainMode === "local") {
-      // Deterministic anvil accounts: 0 = Requester/operator, 1..N = Workers.
+      // Deterministic anvil accounts: 0 = Requester/operator, 1..N = Workers. anvil pre-funds
+      // them all with gas; fundLocal mints them USDC.
       this.requester = this.makeSigner(mnemonicToAccount(ANVIL_MNEMONIC, { addressIndex: 0 }));
       this.operator = this.requester;
       this.workerSigners = Array.from({ length: 16 }, (_, i) =>
@@ -105,7 +114,8 @@ export class ChainSettler {
       return;
     }
 
-    // testnet: single funded deployer acts as Requester + operator + worker participant.
+    // testnet: a real funded deployer is Requester + operator; the mnemonic Workers above are
+    // funded lazily per Round (gas + MockUSDC) from the deployer.
     if (!this.config.deployerPrivateKey) {
       throw new Error("CHAIN_MODE=testnet requires DEPLOYER_PRIVATE_KEY");
     }
@@ -118,13 +128,53 @@ export class ChainSettler {
     const deployer = this.makeSigner(privateKeyToAccount(this.config.deployerPrivateKey as Hex));
     this.requester = deployer;
     this.operator = deployer;
-    this.workerSigners = [deployer];
+    // Workers come from a project mnemonic (NOT anvil's — Arc blocks those public keys as
+    // senders). Fresh addresses, funded from the deployer per Round in ensureTestnetFunding.
+    this.workerSigners = Array.from({ length: 16 }, (_, i) =>
+      this.makeSigner(mnemonicToAccount(this.config.workerMnemonic, { addressIndex: i })),
+    );
     this.deployment = {
       chainId,
       usdc: usdc as Address,
       reputation: reputation as Address,
       escrow: escrow as Address,
     };
+  }
+
+  /**
+   * Top up the assigned testnet Workers from the deployer so they can pay gas and post Stake.
+   * Idempotent: each Worker is funded only when its native or USDC balance runs low, so repeat
+   * Rounds skip funding entirely. MockUSDC's `mint` is open, so the deployer mints to each.
+   */
+  private async ensureTestnetFunding(workers: Address[], stakeAmount: bigint): Promise<void> {
+    const d = this.deployment!;
+    const GAS_MIN = parseEther("0.05");
+    const GAS_TOPUP = parseEther("0.3");
+    const usdcMin = stakeAmount * 4n;
+    const usdcTopup = stakeAmount * 20n + 1_000n * USDC_SCALE;
+    for (const w of workers) {
+      const gas = await this.publicClient.getBalance({ address: w });
+      if (gas < GAS_MIN) {
+        const hash = await this.requester.wallet.sendTransaction({
+          account: this.requester.account,
+          to: w,
+          value: GAS_TOPUP,
+          chain: null,
+        });
+        await this.publicClient.waitForTransactionReceipt({ hash });
+      }
+      if ((await this.usdcBalance(w)) < usdcMin) {
+        const hash = await this.requester.wallet.writeContract({
+          address: d.usdc,
+          abi: MockUSDC.abi,
+          functionName: "mint",
+          args: [w, usdcTopup],
+          account: this.requester.account,
+          chain: null,
+        });
+        await this.publicClient.waitForTransactionReceipt({ hash });
+      }
+    }
   }
 
   /** Deploy the three contracts and wire the registry's authorized writer to the escrow. */
@@ -232,10 +282,15 @@ export class ChainSettler {
     // maxWorkers must cover the assigned set; the contract sizes escrow as
     // baseReward·numTasks·maxWorkers.
     const maxWorkers = BigInt(Math.max(result.assigned.length, 1));
-    const roundId = BigInt(result.roundId);
+    const roundId = this.roundIdBase + BigInt(result.roundId);
 
-    // Map each assigned worker (by position) to an anvil signer address.
+    // Map each assigned worker (by position) to a mnemonic signer address.
     const workerAddrs = result.assigned.map((_w, i) => this.workerAddress(i));
+
+    // On testnet the mnemonic Workers start empty — top them up (gas + USDC) before they stake.
+    if (this.config.chainMode === "testnet" && workerAddrs.length > 0) {
+      await this.ensureTestnetFunding(workerAddrs, stakeAmount);
+    }
 
     // Refused / void path: nothing was scored, just void with a fresh open if needed.
     if (result.refused) {

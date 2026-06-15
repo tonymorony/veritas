@@ -53,6 +53,7 @@ export function TopBar() {
   const serverOnline = useVeritas((s) => s.serverOnline);
   const engineUsed = useVeritas((s) => s.engineUsed);
   const paymentProof = useVeritas((s) => s.paymentProof);
+  const chain = useVeritas((s) => s.result?.chain);
 
   return (
     <header className="flex items-center justify-between gap-4 border-b border-line bg-ink/60 px-6 py-3 backdrop-blur">
@@ -90,9 +91,15 @@ export function TopBar() {
             <span className="h-1.5 w-1.5 rounded-full bg-amber" /> x402 · access paid
           </Chip>
         )}
-        <Chip tone="honest">
-          <span className="h-1.5 w-1.5 rounded-full bg-honest" /> Settled via Circle
-        </Chip>
+        {chain ? (
+          <Chip tone="honest" title={chain.settleTx ?? Object.values(chain.addresses).join(" · ")}>
+            <span className="h-1.5 w-1.5 rounded-full bg-honest" /> on-chain · {chain.chainId}
+          </Chip>
+        ) : (
+          <Chip tone="honest">
+            <span className="h-1.5 w-1.5 rounded-full bg-honest" /> Settled via Circle
+          </Chip>
+        )}
       </div>
     </header>
   );

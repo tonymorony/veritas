@@ -80,9 +80,22 @@ Confiscating part or all of a Worker's Stake. Triggered by committing without re
 slash) or by a sub-threshold honesty score (partial slash).
 _Avoid_: penalty, burn, forfeit
 
+**Escrow**:
+USDC the Requester locks when posting a Round, sized to cover the maximum rewards. At Settlement
+each Report draws `base_reward × normalized_CA_score`; whatever is left over (the gap between max
+and quality-scaled payouts) refunds to the Requester. The Requester pays only for quality delivered.
+_Avoid_: deposit, fund, pool
+
+**Base reward**:
+The per-Report amount a Requester offers, paid in full only for a perfect CA score and scaled down
+by `normalized_CA_score` otherwise.
+_Avoid_: rate, fee, price
+
 **Settlement**:
-Paying out a Report. Payouts are *computed* in bulk at round close but *settled* as individual
-per-report x402 nanopayment receipts (one on-chain transaction per Report).
+Paying out a Round. Each Report's payout is `base_reward × normalized_CA_score`, computed in bulk
+at round close, then *settled* as an individual per-report x402 nanopayment receipt (one on-chain
+transaction per Report). Stake slashed from sub-threshold Workers is redistributed pro-rata to the
+honest (above-threshold) Workers of the same Round.
 _Avoid_: payment, payout, disbursement
 
 ### Reputation

@@ -49,16 +49,16 @@ _Avoid_: allocation, matching, claim
 
 **Eligible pool**:
 The set of Workers permitted to be assigned to a given Round — those above the Round's reputation
-threshold who have posted the required Stake. Every Round's Assignment must include a **floor of
-≥1–2 reputable Workers** (standard-Tier or Reference Workers) so that no Round — probation
-included — can be a pure-Sybil majority.
+threshold who have posted the required Stake. Every Round's Assignment must include a **majority of
+reputable Workers** (`⌊M/2⌋ + 1`, standard/premium-Tier or Reference Workers), so Sybils are always
+a minority — probation included (ADR-0005).
 _Avoid_: candidates, queue
 
 **Reference Worker**:
 A protocol-run, known-honest Worker agent used to satisfy the reputable-Worker floor (especially in
 probation and at genesis, before any Agent has earned Reputation). It gets **no special scoring
-weight** — CA scores it like any other Worker and it is slashable — so it dilutes the
-Sybil-controllable fraction of a Round *without* reintroducing a trusted scorer.
+weight** — CA scores it like any other Worker and it is slashable — so it anchors the honest
+majority of a Round *without* reintroducing a trusted scorer.
 _Avoid_: oracle, seed agent, validator, admin
 
 **Report**:
@@ -159,8 +159,10 @@ _Avoid_: rate, fee, price
 Paying out a Round. Each Report's payout is `base_reward × normalized_CA_score`, computed in bulk
 at round close, then *settled* as an individual per-report Circle **Gateway nanopayment** (one
 on-chain transaction per Report). Not to be confused with x402 — see **Access payment**. Stake
-slashed from sub-threshold Workers is redistributed pro-rata to the honest (above-threshold)
-Workers of the same Round.
+slashed from sub-threshold Workers is redistributed in **equal shares** to the honest
+(above-threshold) Workers of the same Round (Stakes are uniform within a Round, so "pro-rata" is an
+even split). If a Round has no above-threshold Worker, that orphaned Stake goes to the protocol
+treasury, never the Requester (ADR-0007).
 _Avoid_: payment, payout, disbursement, x402
 
 **Access payment**:
@@ -172,9 +174,11 @@ _Avoid_: gas, fee, settlement
 ### Reputation
 
 **Reputation**:
-A Worker's running honesty record — an EMA of their per-Round CA scores, written to ERC-8004. It
-determines which Tier of Rounds the Worker is eligible for. It does *not* alter pay within a Round:
-every Worker in a Round is paid by the same `base_reward × normalized_CA_score`.
+A Worker's running honesty record — an EMA of their per-Round **raw** CA scores (∈ [−1, 1]; see
+ADR-0006), written to ERC-8004. 0 is the neutral origin (chance / no evidence), where an unproven
+Agent starts; it can go negative for a sustained dishonest Worker. It determines which Tier of
+Rounds the Worker is eligible for, but does *not* alter pay within a Round: every Worker in a Round
+is paid by the same `base_reward × normalized_CA_score`.
 _Avoid_: rating, trust score, karma
 
 **Tier**:

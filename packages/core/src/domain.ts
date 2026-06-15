@@ -32,3 +32,35 @@ export interface WorkerScore {
   /** True when raw ≤ 0 (below the honesty threshold) ⇒ partial slash (ADR-0004). */
   slashed: boolean;
 }
+
+/** Economic parameters for settling a Round (a Tier's terms; see CONTEXT.md). */
+export interface SettlementParams {
+  /** Per-Report amount, paid in full only at normalized score 1. */
+  baseReward: number;
+  /** Per-Worker Stake at risk of slashing. */
+  stake: number;
+  /** Fraction of Stake forfeited by a sub-threshold Worker. Defaults to 0.5. */
+  slashFraction?: number;
+}
+
+/** A single Worker's outcome from Settlement. */
+export interface WorkerSettlement {
+  worker: WorkerId;
+  /** Σ over the Worker's Reports of baseReward × normalized score (drawn from Escrow). */
+  reward: number;
+  /** Stake returned to the Worker (full Stake unless slashed). */
+  stakeReturned: number;
+  /** Own Stake forfeited (0 unless sub-threshold). */
+  slashed: number;
+  /** Share of other Workers' slashed Stake received (honest Workers only). */
+  redistribution: number;
+}
+
+/** The result of settling a Round: per-Worker outcomes plus Requester refund. */
+export interface Settlement {
+  workers: WorkerSettlement[];
+  /** Escrow the Requester locked: baseReward × total Reports (max payout). */
+  escrow: number;
+  /** Escrow returned to the Requester (the gap between max and quality-scaled payouts). */
+  requesterRefund: number;
+}

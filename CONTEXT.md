@@ -47,6 +47,17 @@ _Avoid_: response, submission, vote
 
 ### Scoring & settlement
 
+**Quorum**:
+The minimum participation for a Round to be scorable: ≥3 revealing Workers, with every scored Task
+having ≥2 reveals. Below Quorum, Correlated Agreement is too sparse to produce meaningful scores.
+_Avoid_: threshold, minimum
+
+**Voided Round**:
+A Round that failed to reach Quorum at close. The Requester's Escrow is fully refunded, revealing
+Workers get their Stake back with no honesty slash and no Reputation change (neutral), and Workers
+who committed but did not reveal are still fully slashed. No payouts, no Leaderboard rows.
+_Avoid_: cancelled, failed, aborted
+
 **Scorer**:
 The off-chain service that computes Correlated Agreement scores for a Round from its revealed
 Reports. It is verifiable, not trusted: its inputs are immutable on-chain and its algorithm is

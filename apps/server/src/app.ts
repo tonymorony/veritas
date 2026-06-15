@@ -16,6 +16,7 @@ import type { Engine, RoundParams, SwarmComposition } from "@x402-plays/agents";
 import { loadConfig, type ServerConfig } from "./config";
 import { MarketplaceState } from "./state";
 import { makeX402Gate } from "./x402";
+import { getChainSettler } from "./chain";
 
 const DEFAULT_PARAMS: RoundParams = {
   numTasks: 14,
@@ -31,13 +32,16 @@ const DEFAULT_PARAMS: RoundParams = {
 
 export function createApp(config: ServerConfig = loadConfig()): Express {
   const app = express();
-  const state = new MarketplaceState();
+  // When chain settlement is on, hand the marketplace a ChainSettler; it deploys/connects
+  // lazily on first round so server boot stays fast and offline-friendly.
+  const chainSettler = config.chainMode === "off" ? undefined : getChainSettler(config);
+  const state = new MarketplaceState(undefined, chainSettler);
 
   app.use(express.json());
   app.use(cors({ origin: config.corsOrigins, exposedHeaders: ["X-Payment-Response"] }));
 
   app.get("/health", (_req, res) => {
-    res.json({ ok: true, engine: config.engine, x402Mode: config.x402Mode });
+    res.json({ ok: true, engine: config.engine, x402Mode: config.x402Mode, chainMode: config.chainMode });
   });
 
   app.get("/api/state", (_req, res) => {
@@ -46,6 +50,7 @@ export function createApp(config: ServerConfig = loadConfig()): Express {
       roundCount: state.roundCount,
       engine: config.engine,
       x402Mode: config.x402Mode,
+      chainMode: config.chainMode,
     });
   });
 

@@ -82,4 +82,14 @@ export interface RoundResult {
   /** Set when the protocol refused to run the Round (floor unsatisfiable). */
   refused: boolean;
   refusedReason?: string;
+  /**
+   * On-chain settlement metadata, present only when the server settled this Round on a real
+   * EVM chain. The real payout tx hashes live in `txs[].hash`; this carries chain identity,
+   * deployed contract addresses and the settle tx. Optional ⇒ unset in the pure-sim path.
+   */
+  chain?: {
+    chainId: number;
+    addresses: Record<string, string>;
+    settleTx?: string;
+  };
 }

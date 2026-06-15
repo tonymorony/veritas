@@ -83,4 +83,15 @@ export interface RoundResult {
    * Optional so the value remains assignable to web's `RoundResult` (which lacks it).
    */
   engineUsed?: Engine;
+  /**
+   * On-chain settlement metadata, present only when the server settled this Round on a real
+   * EVM chain (`CHAIN_MODE=local|testnet`). The real per-Report payout tx hashes go in
+   * `txs[].hash`; this field carries chain identity, deployed addresses and the settle tx.
+   * Optional so the value remains assignable to web's `RoundResult`.
+   */
+  chain?: {
+    chainId: number;
+    addresses: Record<string, string>;
+    settleTx?: string;
+  };
 }

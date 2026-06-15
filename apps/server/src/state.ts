@@ -10,6 +10,7 @@ import {
   type RoundResult,
   type SwarmComposition,
 } from "@x402-plays/agents";
+import type { ChainSettler } from "./chain";
 
 const DEFAULT_COMPOSITION: SwarmComposition = { honest: 5, reference: 2, sloppy: 1, sybil: 3 };
 
@@ -17,11 +18,14 @@ export class MarketplaceState {
   private marketplace: VeritasMarketplace;
   private composition: SwarmComposition;
   private latestLeaderboard: LeaderboardRow[] = [];
+  /** Optional on-chain settlement seam; undefined ⇒ pure-sim mock txs (CHAIN_MODE=off). */
+  private chainSettler?: ChainSettler;
   roundCount = 0;
 
-  constructor(composition: SwarmComposition = DEFAULT_COMPOSITION) {
+  constructor(composition: SwarmComposition = DEFAULT_COMPOSITION, chainSettler?: ChainSettler) {
     this.composition = composition;
     this.marketplace = new VeritasMarketplace(composition);
+    this.chainSettler = chainSettler;
   }
 
   get workers() {
@@ -38,7 +42,10 @@ export class MarketplaceState {
       this.composition = composition;
       this.marketplace.rebuildSwarm(composition);
     }
-    const result = await this.marketplace.runRound({ params, engine });
+    const offChain = await this.marketplace.runRound({ params, engine });
+    // Settle on a real EVM chain behind a clean seam; the off-chain round runner is untouched.
+    // `CHAIN_MODE=off` (no settler) keeps today's mock txs so the demo runs with zero setup.
+    const result = this.chainSettler ? await this.chainSettler.settleOnChain(offChain) : offChain;
     if (!result.refused) {
       this.roundCount += 1;
       this.latestLeaderboard = result.leaderboard;

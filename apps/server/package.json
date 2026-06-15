@@ -14,6 +14,7 @@
     "@x402-plays/core": "workspace:*",
     "cors": "^2.8.5",
     "express": "^5.1.0",
+    "viem": "^2.52.2",
     "x402-express": "^1.2.0"
   },
   "devDependencies": {

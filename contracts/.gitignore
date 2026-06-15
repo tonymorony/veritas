@@ -1,0 +1,8 @@
+# Foundry build artifacts
+out/
+cache/
+broadcast/
+
+# Foundry dependencies — restore with: forge install
+# (committed-ready ABIs+bytecode live in exports/, so the server needs no forge deps)
+lib/

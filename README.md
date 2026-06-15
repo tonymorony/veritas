@@ -57,8 +57,9 @@ A peer-validated Leaderboard is published
 | `apps/web` | The live **demo dashboard** — runs the real `core` math against a swarm and visualizes the worker×task grid, CA scoring, slashing, settlement, reputation, and the leaderboard. Toggle **In-browser ⇄ Live server** to drive it from the backend. |
 | `apps/landing` | The marketing **landing page**. |
 | `apps/wiki` | The **documentation wiki** (LLM-friendly markdown + illustrated guides). |
+| `contracts/` | The **on-chain settlement layer** (Foundry): `MockUSDC` + `ReputationRegistry` (ERC-8004) + `TaskEscrow` (ERC-8183 commit→reveal→settle). The server settles real Rounds on-chain via viem. |
 | `CONTEXT.md` | The canonical domain glossary — the single source of truth for vocabulary. |
-| `docs/adr/` | Architecture Decision Records (0001–0007). |
+| `docs/adr/` | Architecture Decision Records (0001–0008). |
 | `brand/` | Logo, wordmark, screenshots. |
 
 ## Quickstart
@@ -84,6 +85,12 @@ pnpm -C apps/landing dev
 pnpm -C apps/wiki dev
 ```
 
+**Real on-chain settlement (local):** run `anvil`, then start the server with
+`CHAIN_MODE=local pnpm -C apps/server dev`. In the dashboard's **Live server** mode, each
+Round deploys the contracts to anvil on first use and settles on-chain — the settlement feed
+shows real tx hashes and an "on-chain · 31337" chip. (Contributors running `forge test` in
+`contracts/` first need `forge install`.)
+
 ## Going fully live
 
 The demo runs with **zero config** (in-browser, or the server in simulated mode). To make
@@ -96,8 +103,12 @@ the worker agents *real* and the payment gate *real*, drop a `.env` into `apps/s
   stay in the verifiable `core`.
 - **x402 access payments** — the server defaults to `X402_MODE=mock`, so the API performs a
   real HTTP-402 challenge/response handshake on every gated request (the dashboard auto-pays
-  and shows an "x402 · access paid" chip) — no wallet needed. For real on-chain settlement set
+  and shows an "x402 · access paid" chip) — no wallet needed. For a real x402-settled payment set
   `X402_MODE=live`, `X402_PAY_TO=<funded wallet>`, and `X402_FACILITATOR_URL`.
+- **On-chain settlement** — `CHAIN_MODE=local` settles on a local anvil (real EVM, real txs,
+  verified balance moves) with zero credentials. For an EVM testnet (e.g. Arc), deploy once with
+  `contracts/script/Deploy.s.sol`, then set `CHAIN_MODE=testnet`, `CHAIN_RPC_URL`,
+  `DEPLOYER_PRIVATE_KEY`, and the three deployed addresses.
 
 Then flip the dashboard's **Live server** toggle. No code changes required.
 

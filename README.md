@@ -52,7 +52,9 @@ A peer-validated Leaderboard is published
 | Path | What |
 |------|------|
 | `packages/core` | The mechanism, as a pure, deterministic, fully-tested TypeScript library: `scoreRound`, `settleRound`, `meetsQuorum`, `applyRound`, `assignWorkers`, tiers. **No chain dependency.** |
-| `apps/web` | The live **demo dashboard** — runs the real `core` math against a simulated swarm and visualizes the worker×task grid, CA scoring, slashing, settlement, reputation, and the leaderboard. |
+| `packages/agents` | The worker-agent layer: real LLM judge adapters (Anthropic / OpenAI / Google) with a deterministic simulated fallback, an eval dataset, and a round runner over the real `core`. |
+| `apps/server` | The real backend API (Express) — runs Rounds through `core` + `agents`, behind a real **x402** payment gate. Boots with zero config (simulated); goes live with provider keys. |
+| `apps/web` | The live **demo dashboard** — runs the real `core` math against a swarm and visualizes the worker×task grid, CA scoring, slashing, settlement, reputation, and the leaderboard. Toggle **In-browser ⇄ Live server** to drive it from the backend. |
 | `apps/landing` | The marketing **landing page**. |
 | `apps/wiki` | The **documentation wiki** (LLM-friendly markdown + illustrated guides). |
 | `CONTEXT.md` | The canonical domain glossary — the single source of truth for vocabulary. |
@@ -72,12 +74,31 @@ pnpm -C packages/core test        # CA + settlement + reputation + assignment pr
 # The live demo dashboard  →  http://localhost:5173
 pnpm -C apps/web dev
 
+# The real backend API      →  http://localhost:8787   (optional — for "Live server" mode)
+pnpm -C apps/server dev
+
 # The landing page          →  http://localhost:5174
 pnpm -C apps/landing dev
 
 # The docs wiki             →  http://localhost:4174
 pnpm -C apps/wiki dev
 ```
+
+## Going fully live
+
+The demo runs with **zero config** (in-browser, or the server in simulated mode). To make
+the worker agents *real* and the payment gate *real*, drop a `.env` into `apps/server`
+(see `apps/server/.env.example`):
+
+- **Real LLM judging** — set any of `ANTHROPIC_API_KEY` / `OPENAI_API_KEY` / `GOOGLE_API_KEY`
+  (≥2 for genuine ADR-0002 model-family heterogeneity) and `VERITAS_ENGINE=live`. Honest
+  Worker judgments then come from real LLMs, round-robin across providers; scoring/settlement
+  stay in the verifiable `core`.
+- **Real x402 settlement** — set `X402_MODE=live`, `X402_PAY_TO=<funded wallet>`, and
+  `X402_FACILITATOR_URL`. `X402_MODE=mock` demonstrates the real 402 challenge/response
+  handshake without a funded wallet.
+
+Then flip the dashboard's **Live server** toggle. No code changes required.
 
 ## Collusion-resistance in action
 

@@ -1,65 +1,81 @@
-import { useMemo, useState } from "react";
-import { VeritasSim } from "./sim/engine";
-import type { RoundParams } from "./sim/types";
+import { useEffect } from "react";
+import { useVeritas } from "./store/useVeritas";
+import { TopBar } from "./components/TopBar";
+import { ControlPanel } from "./components/ControlPanel";
+import { WorkerGrid } from "./components/WorkerGrid";
+import { SettlementLedger } from "./components/SettlementLedger";
+import { PaymentFeed } from "./components/PaymentFeed";
+import { ReputationPanel } from "./components/ReputationPanel";
+import { Leaderboard } from "./components/Leaderboard";
+import { RefusedBanner, InvertedRibbon } from "./components/SpecialStates";
+import { Panel } from "./components/ui";
 
-const PARAMS: RoundParams = {
-  numTasks: 12,
-  roundSize: 7,
-  baseReward: 5,
-  stake: 4,
-  honestAccuracy: 0.82,
-  sybilTarget: "GPT-5",
-  sybilStrategy: "naive",
-  enforceMajorityFloor: true,
-  seed: 42,
-};
+function EmptyGrid() {
+  return (
+    <Panel className="flex min-h-0 flex-1 items-center justify-center" title="Worker × task grid">
+      <div className="p-12 text-center">
+        <div className="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-full border border-line bg-panel-2 text-honest">
+          ✓
+        </div>
+        <p className="text-sm text-muted">Run a Round to watch workers judge, get scored, and settle.</p>
+      </div>
+    </Panel>
+  );
+}
 
 export default function App() {
-  const sim = useMemo(() => new VeritasSim({ honest: 5, reference: 2, sloppy: 1, sybil: 3 }), []);
-  const [result, setResult] = useState(() => sim.runRound(PARAMS));
+  const result = useVeritas((s) => s.result);
+  const history = useVeritas((s) => s.history);
+  const runRound = useVeritas((s) => s.runRound);
+  // subscribe to rev so this re-renders when sim.workers mutate in place
+  useVeritas((s) => s.rev);
+
+  // populate the dashboard on first mount
+  useEffect(() => {
+    if (!useVeritas.getState().result) runRound();
+  }, [runRound]);
 
   return (
-    <div className="mx-auto max-w-5xl p-8">
-      <h1 className="text-2xl font-semibold">
-        veritas <span className="text-muted text-sm">— get paid for the truth</span>
-      </h1>
-      <button
-        className="my-4 rounded-md bg-honest px-4 py-2 font-medium text-ink"
-        onClick={() => setResult(sim.runRound(PARAMS))}
-      >
-        Run Round {result.roundId + 1}
-      </button>
+    <div className="flex h-full min-h-0 flex-col bg-transparent text-fg">
+      <TopBar />
+      <main className="grid min-h-0 flex-1 grid-cols-[320px_minmax(0,1fr)_380px] gap-4 p-4">
+        {/* LEFT — controls */}
+        <div className="min-h-0">
+          <ControlPanel />
+        </div>
 
-      <div className="grid grid-cols-2 gap-6">
-        <section>
-          <h2 className="mb-2 text-muted">Scores (round {result.roundId})</h2>
-          <ul className="tnum space-y-1 text-sm">
-            {result.scores.map((s) => {
-              const w = result.assigned.find((a) => a.id === s.worker)!;
-              return (
-                <li key={s.worker} className={s.slashed ? "text-slash" : "text-honest"}>
-                  {w.label} · raw {s.raw.toFixed(2)} · norm {s.normalized.toFixed(2)}
-                  {s.slashed ? " · SLASHED" : ""}
-                </li>
-              );
-            })}
-          </ul>
-        </section>
-        <section>
-          <h2 className="mb-2 text-muted">Leaderboard · truth match {(result.truthMatch * 100).toFixed(0)}%</h2>
-          <ol className="tnum space-y-1 text-sm">
-            {result.leaderboard.map((r) => (
-              <li key={r.model}>
-                {r.model} — peer {r.peerWins} / truth {r.truthWins}
-              </li>
-            ))}
-          </ol>
-          <p className="tnum mt-4 text-sm text-muted">
-            escrow {result.settlement.escrow} · refund {result.settlement.requesterRefund.toFixed(1)} ·
-            treasury {result.settlement.treasury.toFixed(1)} · txs {result.txs.length}
-          </p>
-        </section>
-      </div>
+        {/* CENTER — hero grid + leaderboard */}
+        <div className="flex min-h-0 flex-col gap-4">
+          {result?.inverted && <InvertedRibbon />}
+          {result?.refused ? (
+            <RefusedBanner result={result} />
+          ) : result ? (
+            <WorkerGrid result={result} />
+          ) : (
+            <EmptyGrid />
+          )}
+          {result && !result.refused && <Leaderboard result={result} />}
+        </div>
+
+        {/* RIGHT — settlement, feed, reputation */}
+        <div className="flex min-h-0 flex-col gap-4 overflow-y-auto pr-1">
+          {result && !result.refused ? (
+            <>
+              <SettlementLedger result={result} />
+              <PaymentFeed result={result} />
+              <ReputationPanel result={result} history={history} />
+            </>
+          ) : (
+            <Panel className="p-6" title="Settlement">
+              <p className="p-2 text-sm text-muted">
+                {result?.refused
+                  ? "No settlement — the Round was refused before any work was done."
+                  : "Settlement appears here once a Round runs."}
+              </p>
+            </Panel>
+          )}
+        </div>
+      </main>
     </div>
   );
 }

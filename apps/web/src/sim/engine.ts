@@ -206,11 +206,11 @@ export class VeritasSim {
     const truthWins: Record<string, number> = Object.fromEntries(models.map((m) => [m, 0]));
     let matched = 0;
     truths.forEach((truth, t) => {
-      truthWins[truth] += 1;
+      truthWins[truth] = (truthWins[truth] ?? 0) + 1;
       const tally: Record<string, number> = Object.fromEntries(models.map((m) => [m, 0]));
       for (const w of assigned) tally[grid[w.id]![t]!]! += weight[w.id] ?? 0;
       const winner = models.reduce((best, m) => (tally[m]! > tally[best]! ? m : best), models[0]!);
-      peerWins[winner] += 1;
+      peerWins[winner] = (peerWins[winner] ?? 0) + 1;
       if (winner === truth) matched += 1;
     });
     const leaderboard: LeaderboardRow[] = models

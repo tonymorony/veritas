@@ -34,3 +34,67 @@
     font-variant-numeric: tabular-nums;
   }
 }
+
+@layer components {
+  /* custom range slider */
+  .veritas-range {
+    -webkit-appearance: none;
+    appearance: none;
+    height: 6px;
+    border-radius: 9999px;
+    background: var(--color-panel-2);
+    outline: none;
+    cursor: pointer;
+  }
+  .veritas-range::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    height: 16px;
+    width: 16px;
+    border-radius: 9999px;
+    background: var(--color-honest);
+    border: 2px solid var(--color-ink);
+    box-shadow: 0 0 0 1px var(--color-honest), 0 0 10px -1px var(--color-honest);
+    transition: transform 0.12s ease;
+  }
+  .veritas-range::-webkit-slider-thumb:hover {
+    transform: scale(1.15);
+  }
+  .veritas-range::-moz-range-thumb {
+    height: 16px;
+    width: 16px;
+    border-radius: 9999px;
+    background: var(--color-honest);
+    border: 2px solid var(--color-ink);
+    box-shadow: 0 0 0 1px var(--color-honest);
+  }
+  .veritas-range-danger {
+    height: 8px;
+    background: linear-gradient(90deg, var(--color-panel-2), rgba(255, 92, 92, 0.25));
+  }
+  .veritas-range-danger::-webkit-slider-thumb {
+    background: var(--color-slash);
+    box-shadow: 0 0 0 1px var(--color-slash), 0 0 12px -1px var(--color-slash);
+  }
+  .veritas-range-danger::-moz-range-thumb {
+    background: var(--color-slash);
+    box-shadow: 0 0 0 1px var(--color-slash);
+  }
+}
+
+/* thin custom scrollbars for panels */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--color-line) transparent;
+}
+*::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+*::-webkit-scrollbar-thumb {
+  background: var(--color-line);
+  border-radius: 9999px;
+}
+*::-webkit-scrollbar-track {
+  background: transparent;
+}

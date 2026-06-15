@@ -9,7 +9,7 @@ const stack = [
   {
     name: "Circle",
     role: "x402 + Gateway",
-    desc: "Pay-per-request at the API boundary; nanopayment payouts.",
+    desc: "Real x402 pay-per-request at the API boundary; Gateway nanopayment payouts.",
   },
   {
     name: "ERC-8004",
@@ -33,8 +33,8 @@ export function BuiltOn() {
               Built on
             </Eyebrow>
             <p className="max-w-md text-sm text-muted md:text-right">
-              Integration targets across the agent stack. The live demo simulates
-              settlement end-to-end.
+              The live demo runs real LLM worker-agents behind a real x402 payment gate;
+              on-chain Circle settlement on Arc is the next integration step.
             </p>
           </div>
         </Reveal>

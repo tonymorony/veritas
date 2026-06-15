@@ -1,5 +1,11 @@
 <svg width="120" height="120" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
-  <title>Veritas mark — convergence checkmark</title>
-  <path d="M24 52 L43 70 L78 30" stroke="#5B8DEF" stroke-width="9" stroke-linecap="round" stroke-linejoin="round"/>
-  <circle cx="43" cy="70" r="8.5" fill="#3DDC97"/>
+  <title>Veritas mark — consensus focal node</title>
+  <defs>
+    <linearGradient id="vg" x1="26" y1="68" x2="80" y2="28" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#5B8DEF"/><stop offset="1" stop-color="#86B4FF"/>
+    </linearGradient>
+  </defs>
+  <path d="M26 50 L44 68 L80 28" stroke="url(#vg)" stroke-width="9" stroke-linecap="round" stroke-linejoin="round"/>
+  <circle cx="44" cy="68" r="15" fill="none" stroke="#3DDC97" stroke-width="2.5" opacity="0.45"/>
+  <circle cx="44" cy="68" r="9" fill="#3DDC97"/>
 </svg>

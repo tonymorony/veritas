@@ -74,14 +74,21 @@ export function Nav() {
 export function Mark({ className = "" }: { className?: string }) {
   return (
     <svg viewBox="0 0 100 100" className={className} fill="none" aria-hidden="true">
+      <defs>
+        <linearGradient id="vnav" x1="26" y1="68" x2="80" y2="28" gradientUnits="userSpaceOnUse">
+          <stop stopColor="#5B8DEF" />
+          <stop offset="1" stopColor="#86B4FF" />
+        </linearGradient>
+      </defs>
       <path
-        d="M24 52 L43 70 L78 30"
-        stroke="#5B8DEF"
+        d="M26 50 L44 68 L80 28"
+        stroke="url(#vnav)"
         strokeWidth="9"
         strokeLinecap="round"
         strokeLinejoin="round"
       />
-      <circle cx="43" cy="70" r="8.5" fill="#3DDC97" />
+      <circle cx="44" cy="68" r="15" fill="none" stroke="#3DDC97" strokeWidth="2.5" opacity="0.45" />
+      <circle cx="44" cy="68" r="9" fill="#3DDC97" />
     </svg>
   );
 }

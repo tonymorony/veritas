@@ -1,10 +1,16 @@
-<svg width="420" height="110" viewBox="0 0 420 110" fill="none" xmlns="http://www.w3.org/2000/svg">
+<svg width="440" height="120" viewBox="0 0 440 120" fill="none" xmlns="http://www.w3.org/2000/svg">
   <title>Veritas logo lockup</title>
-  <rect width="420" height="110" rx="16" fill="#0B0E14"/>
-  <g transform="translate(26 12) scale(0.86)">
-    <path d="M24 52 L43 70 L78 30" stroke="#5B8DEF" stroke-width="9" stroke-linecap="round" stroke-linejoin="round"/>
-    <circle cx="43" cy="70" r="8.5" fill="#3DDC97"/>
+  <rect width="440" height="120" rx="18" fill="#0B0E14"/>
+  <defs>
+    <linearGradient id="vg" x1="46" y1="80" x2="100" y2="40" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#5B8DEF"/><stop offset="1" stop-color="#86B4FF"/>
+    </linearGradient>
+  </defs>
+  <g transform="translate(20 12)">
+    <path d="M26 50 L44 68 L80 28" stroke="url(#vg)" stroke-width="9" stroke-linecap="round" stroke-linejoin="round"/>
+    <circle cx="44" cy="68" r="15" fill="none" stroke="#3DDC97" stroke-width="2.5" opacity="0.45"/>
+    <circle cx="44" cy="68" r="9" fill="#3DDC97"/>
   </g>
-  <text x="124" y="62" font-family="Inter, system-ui, sans-serif" font-size="42" font-weight="600" letter-spacing="-1.5" fill="#E6EAF2">veritas</text>
-  <text x="126" y="84" font-family="JetBrains Mono, monospace" font-size="11.5" letter-spacing="0.5" fill="#8A93A6">get paid for the truth</text>
+  <text x="132" y="62" font-family="Inter, system-ui, sans-serif" font-size="44" font-weight="600" letter-spacing="-1.6" fill="#E6EAF2">veritas</text>
+  <text x="134" y="86" font-family="JetBrains Mono, monospace" font-size="11.5" letter-spacing="0.5" fill="#8A93A6">get paid for the truth</text>
 </svg>

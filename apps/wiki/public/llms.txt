@@ -1,0 +1,16 @@
+# Veritas
+
+> Veritas is a trustless settlement layer for subjective AI-agent work. It scores work by peer agreement (Correlated Agreement) instead of an oracle, making honest reporting the dominant strategy. Built on Circle + Arc with x402 access payments and Gateway nanopayments.
+
+Each page is available as clean, structured markdown at the /md/<name>.md URLs below. A live demo dashboard runs at http://localhost:4173.
+
+## Docs
+
+- [Introduction](/md/introduction.md): What Veritas is, the no-ground-truth problem, the peer-prediction solution, and who it's for.
+- [Core concepts](/md/core-concepts.md): The full glossary: Round, Worker, Report, commit–reveal, Correlated Agreement, Quorum, Stake, Slash, Settlement, Reputation, Tier, Leaderboard, Reference Worker.
+- [How Correlated Agreement works](/md/correlated-agreement.md): The peer-prediction intuition: score the surprise in agreement, no ground truth, truth-telling is dominant, collusion and random answering score ≤ 0. With a worked example.
+- [Architecture](/md/architecture.md): The round lifecycle, why off-chain scoring is verifiable-not-trusted, the Circle/Arc/ERC-8004/8183 primitive mapping, and the reputable-majority floor. Summarizes ADR-0001 to 0007.
+- [Run the live demo](/md/guide-demo.md): Step-by-step walkthrough of the demo dashboard: controls, worker×task grid, settlement ledger, Circle feed, reputation, and leaderboard.
+- [The collusion attack & the majority floor](/md/guide-collusion.md): The flagship guide: inject Sybils and watch the majority floor ON (cartel slashed, leaderboard correct) vs OFF (cartel captures the Round, CA inverts, ranking rigged).
+- [API reference](/md/api.md): The @x402-plays/core public functions: scoreRound, settleRound, meetsQuorum, updateReputation, applyRound, isEligible, eligiblePool, assignWorkers, TIERS. A pure, deterministic, recomputable core.
+- [FAQ](/md/faq.md): What stops collusion, why no oracle, what the Leaderboard is for, is scoring trusted, what's mocked vs real in the demo.

@@ -1,0 +1,281 @@
+@import "tailwindcss";
+
+@theme {
+  --color-ink: #0b0e14;
+  --color-panel: #141925;
+  --color-panel-2: #1b2231;
+  --color-line: #232c3d;
+  --color-honest: #3ddc97;
+  --color-scoring: #5b8def;
+  --color-slash: #ff5c5c;
+  --color-amber: #f5b94a;
+  --color-fg: #e6eaf2;
+  --color-muted: #8a93a6;
+
+  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, "SF Mono", monospace;
+}
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
+  }
+  body {
+    margin: 0;
+    background: var(--color-ink);
+    color: var(--color-fg);
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+  }
+  .tnum {
+    font-family: var(--font-mono);
+    font-variant-numeric: tabular-nums;
+  }
+  ::selection {
+    background: color-mix(in srgb, var(--color-scoring) 35%, transparent);
+    color: var(--color-fg);
+  }
+  /* Custom scrollbar for the dark theme */
+  * {
+    scrollbar-width: thin;
+    scrollbar-color: var(--color-line) transparent;
+  }
+  *::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+  }
+  *::-webkit-scrollbar-thumb {
+    background: var(--color-line);
+    border-radius: 6px;
+    border: 2px solid var(--color-ink);
+  }
+}
+
+/* ── Long-form markdown typography (.prose-veritas) ─────────────────── */
+.prose-veritas {
+  color: var(--color-fg);
+  font-size: 1.0625rem;
+  line-height: 1.75;
+  word-wrap: break-word;
+}
+.prose-veritas > *:first-child {
+  margin-top: 0;
+}
+.prose-veritas h1 {
+  font-size: 2.25rem;
+  font-weight: 700;
+  line-height: 1.15;
+  letter-spacing: -0.02em;
+  margin: 0 0 1.25rem;
+  color: var(--color-fg);
+}
+.prose-veritas h2 {
+  font-size: 1.5rem;
+  font-weight: 650;
+  line-height: 1.25;
+  letter-spacing: -0.01em;
+  margin: 2.75rem 0 1rem;
+  padding-top: 0.5rem;
+  color: var(--color-fg);
+}
+.prose-veritas h3 {
+  font-size: 1.175rem;
+  font-weight: 600;
+  margin: 2rem 0 0.65rem;
+  color: var(--color-fg);
+}
+.prose-veritas h4 {
+  font-size: 1rem;
+  font-weight: 600;
+  margin: 1.5rem 0 0.5rem;
+  color: var(--color-fg);
+}
+/* Anchor offset so deep-links don't hide under nothing; smooth via html */
+.prose-veritas :is(h1, h2, h3, h4) {
+  scroll-margin-top: 1.5rem;
+}
+.prose-veritas p {
+  margin: 0 0 1.15rem;
+}
+.prose-veritas a {
+  color: var(--color-scoring);
+  text-decoration: none;
+  border-bottom: 1px solid color-mix(in srgb, var(--color-scoring) 35%, transparent);
+  transition: border-color 0.15s ease, color 0.15s ease;
+}
+.prose-veritas a:hover {
+  color: var(--color-fg);
+  border-bottom-color: var(--color-scoring);
+}
+.prose-veritas strong {
+  color: var(--color-fg);
+  font-weight: 650;
+}
+.prose-veritas ul,
+.prose-veritas ol {
+  margin: 0 0 1.15rem;
+  padding-left: 1.4rem;
+}
+.prose-veritas li {
+  margin: 0.4rem 0;
+}
+.prose-veritas li::marker {
+  color: var(--color-muted);
+}
+.prose-veritas ul li::marker {
+  color: var(--color-scoring);
+}
+.prose-veritas hr {
+  border: 0;
+  border-top: 1px solid var(--color-line);
+  margin: 2.5rem 0;
+}
+
+/* Inline code */
+.prose-veritas :not(pre) > code {
+  font-family: var(--font-mono);
+  font-size: 0.85em;
+  background: var(--color-panel-2);
+  color: var(--color-amber);
+  border: 1px solid var(--color-line);
+  border-radius: 5px;
+  padding: 0.12em 0.4em;
+  word-break: break-word;
+}
+
+/* Code blocks */
+.prose-veritas pre {
+  background: var(--color-panel);
+  border: 1px solid var(--color-line);
+  border-radius: 12px;
+  padding: 1.1rem 1.25rem;
+  margin: 0 0 1.5rem;
+  overflow-x: auto;
+  line-height: 1.6;
+  box-shadow: 0 1px 0 rgba(0, 0, 0, 0.3) inset;
+}
+.prose-veritas pre code {
+  font-family: var(--font-mono);
+  font-size: 0.85rem;
+  background: none;
+  border: 0;
+  padding: 0;
+  color: var(--color-fg);
+}
+
+/* Blockquote callouts */
+.prose-veritas blockquote {
+  margin: 0 0 1.5rem;
+  padding: 0.9rem 1.1rem;
+  background: color-mix(in srgb, var(--color-scoring) 8%, var(--color-panel));
+  border: 1px solid var(--color-line);
+  border-left: 3px solid var(--color-scoring);
+  border-radius: 8px;
+  color: var(--color-fg);
+}
+.prose-veritas blockquote p {
+  margin: 0;
+}
+.prose-veritas blockquote p + p {
+  margin-top: 0.6rem;
+}
+.prose-veritas blockquote a {
+  color: var(--color-honest);
+  border-bottom-color: color-mix(in srgb, var(--color-honest) 35%, transparent);
+}
+
+/* Tables */
+.prose-veritas table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 0 0 1.5rem;
+  font-size: 0.95rem;
+  display: block;
+  overflow-x: auto;
+}
+.prose-veritas thead {
+  border-bottom: 2px solid var(--color-line);
+}
+.prose-veritas th {
+  text-align: left;
+  font-weight: 600;
+  color: var(--color-muted);
+  padding: 0.6rem 0.9rem;
+  white-space: nowrap;
+}
+.prose-veritas td {
+  padding: 0.6rem 0.9rem;
+  border-top: 1px solid var(--color-line);
+  vertical-align: top;
+}
+.prose-veritas tbody tr:hover {
+  background: color-mix(in srgb, var(--color-panel) 60%, transparent);
+}
+
+/* Images: rounded borders + subtle glow + caption from alt text */
+.prose-veritas figure {
+  margin: 1.75rem 0;
+}
+.prose-veritas figure img {
+  display: block;
+  width: 100%;
+  height: auto;
+  border-radius: 12px;
+  border: 1px solid var(--color-line);
+  box-shadow:
+    0 0 0 1px rgba(91, 141, 239, 0.05),
+    0 8px 40px -12px rgba(91, 141, 239, 0.35);
+}
+.prose-veritas figcaption {
+  margin-top: 0.65rem;
+  font-size: 0.85rem;
+  line-height: 1.5;
+  color: var(--color-muted);
+  text-align: center;
+}
+
+/* ── highlight.js theme (brand-tinted) ─────────────────────────────── */
+.hljs-comment,
+.hljs-quote {
+  color: var(--color-muted);
+  font-style: italic;
+}
+.hljs-keyword,
+.hljs-selector-tag,
+.hljs-built_in,
+.hljs-literal {
+  color: var(--color-scoring);
+}
+.hljs-string,
+.hljs-attr,
+.hljs-template-tag {
+  color: var(--color-honest);
+}
+.hljs-number,
+.hljs-symbol,
+.hljs-bullet {
+  color: var(--color-amber);
+}
+.hljs-title,
+.hljs-function .hljs-title,
+.hljs-section,
+.hljs-name {
+  color: var(--color-amber);
+}
+.hljs-type,
+.hljs-class .hljs-title,
+.hljs-tag {
+  color: var(--color-scoring);
+}
+.hljs-deletion {
+  color: var(--color-slash);
+}
+.hljs-addition {
+  color: var(--color-honest);
+}
+.hljs-emphasis {
+  font-style: italic;
+}
+.hljs-strong {
+  font-weight: 700;
+}

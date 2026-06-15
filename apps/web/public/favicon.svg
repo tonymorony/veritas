@@ -1,0 +1,11 @@
+<svg width="100" height="100" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="100" height="100" rx="24" fill="#0B0E14"/>
+  <!-- two converging agreement vectors forming a checkmark = consensus -->
+  <path d="M24 52 L43 70 L78 30" stroke="#5B8DEF" stroke-width="9" stroke-linecap="round" stroke-linejoin="round"/>
+  <!-- the convergence node -->
+  <circle cx="43" cy="70" r="8.5" fill="#3DDC97"/>
+  <circle cx="43" cy="70" r="8.5" fill="#3DDC97" opacity="0.35">
+    <animate attributeName="r" values="8.5;13;8.5" dur="2.4s" repeatCount="indefinite"/>
+    <animate attributeName="opacity" values="0.35;0;0.35" dur="2.4s" repeatCount="indefinite"/>
+  </circle>
+</svg>

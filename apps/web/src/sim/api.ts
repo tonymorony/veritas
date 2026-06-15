@@ -5,14 +5,18 @@ export const SERVER_URL =
   (import.meta.env.VITE_SERVER_URL as string | undefined) ?? "http://localhost:8787";
 
 /** The server may report which engine actually ran (live LLMs vs simulated fallback). */
-export type ServerRoundResult = RoundResult & { engineUsed?: "live" | "simulated" };
+export type ServerRoundResult = RoundResult & {
+  engineUsed?: "live" | "simulated";
+  /** Present when the x402 gate settled the access payment (mock/live modes). */
+  paymentProof?: string;
+};
 
 export interface ServerState {
   ok: boolean;
   engineUsed?: "live" | "simulated";
 }
 
-async function post<T>(path: string, body: unknown): Promise<T> {
+async function post<T>(path: string, body: unknown): Promise<{ data: T; paymentProof?: string }> {
   const res = await fetch(`${SERVER_URL}${path}`, {
     method: "POST",
     headers: {
@@ -26,7 +30,8 @@ async function post<T>(path: string, body: unknown): Promise<T> {
     throw new Error("402 Payment Required — x402 gate is live (configure a wallet to pay)");
   }
   if (!res.ok) throw new Error(`server ${res.status}: ${await res.text().catch(() => "")}`);
-  return (await res.json()) as T;
+  const paymentProof = res.headers.get("x-payment-response") ?? undefined;
+  return { data: (await res.json()) as T, paymentProof };
 }
 
 export async function pingServer(): Promise<boolean> {
@@ -38,13 +43,17 @@ export async function pingServer(): Promise<boolean> {
   }
 }
 
-export function runRoundLive(
+export async function runRoundLive(
   params: RoundParams,
   composition: SwarmComposition,
 ): Promise<ServerRoundResult> {
-  return post<ServerRoundResult>("/api/round", { params, composition });
+  const { data, paymentProof } = await post<ServerRoundResult>("/api/round", {
+    params,
+    composition,
+  });
+  return { ...data, paymentProof: data.paymentProof ?? paymentProof };
 }
 
-export function resetServer(): Promise<void> {
-  return post<void>("/api/reset", {});
+export async function resetServer(): Promise<void> {
+  await post<void>("/api/reset", {});
 }

@@ -13,7 +13,10 @@ export interface ServerConfig {
 }
 
 export function loadConfig(env: NodeJS.ProcessEnv = process.env): ServerConfig {
-  const x402Mode = (env.X402_MODE ?? "off") as X402Mode;
+  // Default to `mock`: the x402 gate performs a real 402 challenge/response handshake on
+  // each gated request (the dashboard auto-pays via header), so the Circle/x402 integration
+  // is visibly functional in the demo. Set X402_MODE=off to disable, or =live for real settlement.
+  const x402Mode = (env.X402_MODE ?? "mock") as X402Mode;
   const engine = (env.VERITAS_ENGINE ?? "simulated") as Engine;
   return {
     port: Number(env.PORT ?? 8787),

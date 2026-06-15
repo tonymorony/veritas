@@ -94,9 +94,10 @@ the worker agents *real* and the payment gate *real*, drop a `.env` into `apps/s
   (≥2 for genuine ADR-0002 model-family heterogeneity) and `VERITAS_ENGINE=live`. Honest
   Worker judgments then come from real LLMs, round-robin across providers; scoring/settlement
   stay in the verifiable `core`.
-- **Real x402 settlement** — set `X402_MODE=live`, `X402_PAY_TO=<funded wallet>`, and
-  `X402_FACILITATOR_URL`. `X402_MODE=mock` demonstrates the real 402 challenge/response
-  handshake without a funded wallet.
+- **x402 access payments** — the server defaults to `X402_MODE=mock`, so the API performs a
+  real HTTP-402 challenge/response handshake on every gated request (the dashboard auto-pays
+  and shows an "x402 · access paid" chip) — no wallet needed. For real on-chain settlement set
+  `X402_MODE=live`, `X402_PAY_TO=<funded wallet>`, and `X402_FACILITATOR_URL`.
 
 Then flip the dashboard's **Live server** toggle. No code changes required.
 

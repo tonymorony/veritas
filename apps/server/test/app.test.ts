@@ -49,6 +49,10 @@ describe("server /api/round", () => {
 });
 
 describe("x402 gate (mock mode)", () => {
+  it("defaults to mock mode so the gate is functional in the demo", () => {
+    expect(loadConfig({}).x402Mode).toBe("mock");
+  });
+
   const mockApp = () => createApp({ ...loadConfig({}), x402Mode: "mock" });
 
   it("returns 402 with payment requirements when X-PAYMENT is missing", async () => {

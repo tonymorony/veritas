@@ -73,6 +73,8 @@ interface VeritasState {
   serverOnline: boolean;
   /** What the server actually ran last: real LLM agents or its simulated fallback. */
   engineUsed: "live" | "simulated" | null;
+  /** x402 access-payment proof from the last gated request (mock/live modes). */
+  paymentProof: string | null;
 
   setEngine: (engine: Engine) => Promise<void>;
   setParam: <K extends keyof RoundParams>(key: K, value: RoundParams[K]) => void;
@@ -100,6 +102,7 @@ export const useVeritas = create<VeritasState>((set, get) => ({
   busy: false,
   serverOnline: false,
   engineUsed: null,
+  paymentProof: null,
 
   setEngine: async (engine) => {
     if (engine === "server") {
@@ -134,6 +137,7 @@ export const useVeritas = create<VeritasState>((set, get) => ({
         set((s) => ({
           result,
           engineUsed: result.engineUsed ?? "simulated",
+          paymentProof: result.paymentProof ?? null,
           serverOnline: true,
           history: [...s.history, result].slice(-40),
           rev: s.rev + 1,

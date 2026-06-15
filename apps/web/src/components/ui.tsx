@@ -36,9 +36,11 @@ export function Panel({
 export function Chip({
   children,
   tone = "muted",
+  title,
 }: {
   children: ReactNode;
   tone?: "muted" | "honest" | "scoring" | "slash" | "amber";
+  title?: string;
 }) {
   const tones: Record<string, string> = {
     muted: "border-line bg-panel-2 text-muted",
@@ -49,6 +51,7 @@ export function Chip({
   };
   return (
     <span
+      title={title}
       className={`inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-[11px] font-medium ${tones[tone]}`}
     >
       {children}

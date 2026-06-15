@@ -52,6 +52,7 @@ export function TopBar() {
   const busy = useVeritas((s) => s.busy);
   const serverOnline = useVeritas((s) => s.serverOnline);
   const engineUsed = useVeritas((s) => s.engineUsed);
+  const paymentProof = useVeritas((s) => s.paymentProof);
 
   return (
     <header className="flex items-center justify-between gap-4 border-b border-line bg-ink/60 px-6 py-3 backdrop-blur">
@@ -82,6 +83,11 @@ export function TopBar() {
         ) : (
           <Chip tone="scoring">
             <span className="h-1.5 w-1.5 rounded-full bg-scoring" /> in-browser sim
+          </Chip>
+        )}
+        {engine === "server" && paymentProof && (
+          <Chip tone="amber" title={paymentProof}>
+            <span className="h-1.5 w-1.5 rounded-full bg-amber" /> x402 · access paid
           </Chip>
         )}
         <Chip tone="honest">

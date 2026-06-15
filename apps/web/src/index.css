@@ -33,6 +33,17 @@
     font-family: var(--font-mono);
     font-variant-numeric: tabular-nums;
   }
+
+  /* Keyboard focus: a visible ring on every interactive control (mouse clicks
+     stay clean via :focus-visible). The custom range below sets outline:none, so
+     it gets a box-shadow ring instead. */
+  :where(button, a, input, select, textarea, summary, [role="switch"], [role="tab"], [tabindex]):focus-visible {
+    outline: 2px solid var(--color-scoring);
+    outline-offset: 2px;
+  }
+  .veritas-range:focus-visible {
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--color-scoring) 55%, transparent);
+  }
 }
 
 @layer components {

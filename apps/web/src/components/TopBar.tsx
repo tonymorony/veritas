@@ -31,11 +31,12 @@ function EngineToggle() {
     { id: "server", label: "Live server" },
   ];
   return (
-    <div className="flex rounded-full border border-line bg-panel p-0.5 text-xs">
+    <div role="group" aria-label="Compute engine" className="flex rounded-full border border-line bg-panel p-0.5 text-xs">
       {opts.map((o) => (
         <button
           key={o.id}
           onClick={() => void setEngine(o.id)}
+          aria-pressed={engine === o.id}
           className={`rounded-full px-2.5 py-1 transition-colors ${
             engine === o.id ? "bg-panel-2 text-fg" : "text-muted hover:text-fg"
           }`}
@@ -66,6 +67,7 @@ export function TopBar() {
       </div>
       <div className="flex items-center gap-2">
         <EngineToggle />
+        <div className="flex items-center gap-2" role="status" aria-live="polite">
         {engine === "server" ? (
           busy ? (
             <Chip tone="scoring">
@@ -100,6 +102,7 @@ export function TopBar() {
             <span className="h-1.5 w-1.5 rounded-full bg-honest" /> Settled via Circle
           </Chip>
         )}
+        </div>
       </div>
     </header>
   );

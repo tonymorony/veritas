@@ -32,6 +32,8 @@ function Slider({
         max={max}
         step={step}
         value={value}
+        aria-label={label}
+        aria-valuetext={display}
         onChange={(e) => onChange(Number(e.target.value))}
         className="veritas-range w-full"
       />
@@ -54,6 +56,7 @@ function Toggle({
         <button
           key={o.value}
           onClick={() => onChange(o.value)}
+          aria-pressed={value === o.value}
           className={`rounded-md px-2 py-1.5 text-xs font-medium transition-colors ${
             value === o.value ? "bg-panel-2 text-fg shadow" : "text-muted hover:text-fg"
           }`}
@@ -126,6 +129,8 @@ export function ControlPanel() {
             max={8}
             step={1}
             value={composition.sybil}
+            aria-label="Inject colluding Sybils"
+            aria-valuetext={`${composition.sybil} Sybils`}
             onChange={(e) => setSybils(Number(e.target.value))}
             className="veritas-range veritas-range-danger w-full"
           />
@@ -163,6 +168,7 @@ export function ControlPanel() {
               <button
                 role="switch"
                 aria-checked={params.enforceMajorityFloor}
+                aria-label="Reputable-majority floor (ADR-0005)"
                 onClick={() => setParam("enforceMajorityFloor", !params.enforceMajorityFloor)}
                 className={`relative h-6 w-11 shrink-0 rounded-full transition-colors ${
                   params.enforceMajorityFloor ? "bg-honest" : "bg-slash/60"

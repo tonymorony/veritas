@@ -92,4 +92,12 @@ escrow + Σstake = Σreward + ΣstakeReturned + Σredistribution + requesterRefu
 
 The lifecycle above runs two ways. The dashboard's default is an **in-browser simulation**, but Veritas also ships a **real backend** (`apps/server`) that runs the *same* `@x402-plays/core` mechanism in memory and serves it over HTTP. Its `POST /api/round` and `GET /api/leaderboard` endpoints sit behind a real **x402** payment gate at the API boundary ([ADR-0003](#adr-0003)) — `mock` mode performs a genuine HTTP-402 challenge/response the dashboard auto-pays, and `live` mode verifies payments against a facilitator. The worker-agent layer can draw honest/Reference judgments from **real LLMs** across Anthropic, OpenAI, and Google ([ADR-0002 heterogeneity](#adr-0002)), falling back to the simulated swarm when no keys are present.
 
-This is the first real Circle-stack integration (x402 at the boundary); on-chain Gateway/ERC-8004/8183 settlement remains the next step. Full reference: [Backend & API](/backend). Hands-on: [Run it live](/guide-live).
+This is the first real Circle-stack integration (x402 at the boundary). Full reference: [Backend & API](/backend). Hands-on: [Run it live](/guide-live).
+
+## The on-chain settlement layer {#adr-0009}
+
+> **ADR-0009 — On-chain settlement layer: real escrow + reputation contracts, off-chain scoring.**
+
+Beyond the x402 *access* gate, Veritas ships a Solidity settlement layer (`contracts/`, Foundry) that makes the [Settlement](/core-concepts#settlement) itself real: **MockUSDC** (a USDC stand-in locally, the canonical token on testnet), a **ReputationRegistry** (ERC-8004-style), and a **TaskEscrow** (ERC-8183-style) that runs `openRound → joinAndCommit → reveal → settle` (or `void` below Quorum). The escrow enforces — and reverts on any violation of — the exact `settlement.ts` math: per-Report payout, 50%/100% slash, equal-share redistribution to honest Workers, orphaned-slash-to-treasury ([ADR-0007](#adr-0007)), Requester refund, and full USDC conservation. Scoring stays off-chain ([ADR-0001](#adr-0001)); only the finished `RoundResult` is submitted, so the chain is the settlement *checker*, not the re-scorer.
+
+The backend wires this through a `ChainSettler` seam with `CHAIN_MODE=off|local|testnet`: `local` auto-deploys to a local **anvil** and replays each Round as real transactions (the dashboard shows real tx hashes and an `on-chain · <chainId>` chip), and `testnet` is the same code pointed at Arc with a funded key — config, not a code change. Full reference: [On-chain settlement](/onchain).

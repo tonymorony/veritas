@@ -6,6 +6,7 @@ import guideDemo from "./guide-demo.md?raw";
 import guideCollusion from "./guide-collusion.md?raw";
 import api from "./api.md?raw";
 import backend from "./backend.md?raw";
+import onchain from "./onchain.md?raw";
 import guideLive from "./guide-live.md?raw";
 import faq from "./faq.md?raw";
 
@@ -63,7 +64,7 @@ export const SECTIONS: DocSection[] = [
         file: "architecture",
         title: "Architecture",
         description:
-          "The round lifecycle, why off-chain scoring is verifiable-not-trusted, the Circle/Arc/ERC-8004/8183 primitive mapping, the reputable-majority floor, and the real backend + x402 gate. Summarizes ADR-0001 to 0008.",
+          "The round lifecycle, why off-chain scoring is verifiable-not-trusted, the Circle/Arc/ERC-8004/8183 primitive mapping, the reputable-majority floor, and the real backend + x402 gate, and the on-chain settlement layer. Summarizes ADR-0001 to 0009.",
         markdown: architecture,
       },
     ],
@@ -107,6 +108,14 @@ export const SECTIONS: DocSection[] = [
         description:
           "The real server: browser sim vs the live backend running the same core in memory, the HTTP API (state/round/leaderboard/reset/health), the x402 gate (off|mock|live), and the simulated vs live LLM worker-agent engine with engineUsed and graceful fallback. ADR-0008.",
         markdown: backend,
+      },
+      {
+        slug: "onchain",
+        file: "onchain",
+        title: "On-chain settlement",
+        description:
+          "Real USDC settlement on chain: the MockUSDC / ReputationRegistry (ERC-8004) / TaskEscrow (ERC-8183) contracts, off-chain scoring submitted on-chain, the CHAIN_MODE off|local|testnet seam, the local anvil demo, the Arc testnet config path, and how it's verified. ADR-0009.",
+        markdown: onchain,
       },
     ],
   },

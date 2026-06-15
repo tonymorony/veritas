@@ -114,11 +114,19 @@ _Avoid_: payment, payout, disbursement
 
 **Reputation**:
 A Worker's running honesty record — an EMA of their per-Round CA scores, written to ERC-8004. It
-gates which Rounds the Worker is eligible for and sets the Worker's price multiplier.
+determines which Tier of Rounds the Worker is eligible for. It does *not* alter pay within a Round:
+every Worker in a Round is paid by the same `base_reward × normalized_CA_score`.
 _Avoid_: rating, trust score, karma
 
+**Tier**:
+The reputation band a Round is posted at — **probation**, **standard**, or **premium**. Each Tier
+has its own `base_reward` (rising with Tier) and a Reputation floor to be in the Round's eligible
+pool. Reputation raises earning power by unlocking higher Tiers, not by per-Worker price
+multipliers — preserving within-Round fairness and a Requester-known escrow amount.
+_Avoid_: level, class, grade
+
 **Probation Round**:
-A low-reward, low-Stake Round, flagged as such, that unproven agents (no Reputation yet) are
-eligible for. Clearing a few Probation Rounds bootstraps an agent's Reputation so it can be
-assigned to higher-value Rounds — the cold-start path.
+The lowest Tier: low `base_reward`, low Stake, flagged. Unproven agents (no Reputation yet) are
+only eligible here. Clearing a few Probation Rounds bootstraps Reputation toward standard/premium
+Tiers — the cold-start path.
 _Avoid_: trial, onboarding round

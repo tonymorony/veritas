@@ -1,6 +1,7 @@
 import { describe, it, expect } from "vitest";
 import { settleRound } from "../src/settlement";
 import type { Round, Report } from "../src/domain";
+import { buildRound, honest, fixed, random, type WorkerSpec } from "./synthetic";
 
 const gridFor = (specs: Record<string, string[]>): Report[] => {
   const reports: Report[] = [];
@@ -81,5 +82,53 @@ describe("settleRound — payouts", () => {
     for (const id of ["w1", "w2", "w3"]) {
       expect(byWorker[id]!.redistribution).toBeCloseTo(4 / 3);
     }
+  });
+});
+
+describe("settleRound — money conservation", () => {
+  it("conserves USDC: Escrow + total Stake in == payouts + Stake out + refund", () => {
+    const answerSpace = ["a", "b", "c"];
+    const workers: WorkerSpec[] = [
+      ...["h1", "h2", "h3", "h4"].map((id) => ({ id, strategy: honest(0.8) })),
+      { id: "col1", strategy: fixed("a") },
+      { id: "col2", strategy: fixed("a") },
+      { id: "rng", strategy: random },
+    ];
+
+    for (let seed = 1; seed <= 20; seed++) {
+      const round = buildRound({ answerSpace, numTasks: 12, workers, seed });
+      const params = { baseReward: 10, stake: 8 };
+      const s = settleRound(round, params);
+
+      const stakeIn = params.stake * s.workers.length;
+      const out =
+        s.workers.reduce((a, w) => a + w.reward + w.stakeReturned + w.redistribution, 0) +
+        s.requesterRefund;
+
+      // No USDC is created or destroyed: every slashed cent reappears as a payout,
+      // a returned Stake, a redistribution, or a refund.
+      expect(out).toBeCloseTo(s.escrow + stakeIn);
+    }
+  });
+
+  it("conserves USDC even when every Worker is slashed (no honest recipient)", () => {
+    // All Workers report the same fixed answer: no Task-correlated signal, so every
+    // raw score is ≤ 0 and everyone is slashed. The slashed Stake has nowhere honest
+    // to go and must still be accounted for (it refunds to the Requester).
+    const answerSpace = ["a", "b", "c"];
+    const workers: WorkerSpec[] = ["x1", "x2", "x3", "x4"].map((id) => ({
+      id,
+      strategy: fixed("a"),
+    }));
+    const round = buildRound({ answerSpace, numTasks: 8, workers, seed: 3 });
+    const params = { baseReward: 10, stake: 8 };
+    const s = settleRound(round, params);
+
+    expect(s.workers.every((w) => w.slashed > 0)).toBe(true);
+    const stakeIn = params.stake * s.workers.length;
+    const out =
+      s.workers.reduce((a, w) => a + w.reward + w.stakeReturned + w.redistribution, 0) +
+      s.requesterRefund;
+    expect(out).toBeCloseTo(s.escrow + stakeIn);
   });
 });

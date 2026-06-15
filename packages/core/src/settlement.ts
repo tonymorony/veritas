@@ -41,8 +41,11 @@ export function settleRound(round: Round, params: SettlementParams): Settlement 
       if (w.slashed === 0) w.redistribution = totalSlashed * (w.reward / honestReward);
     }
   }
+  // With no honest recipient, slashed Stake has nowhere to go; it refunds to the
+  // Requester rather than vanishing (keeps USDC conserved).
+  const undistributed = honestReward > 0 ? 0 : totalSlashed;
 
   const totalRewards = workers.reduce((a, w) => a + w.reward, 0);
 
-  return { workers, escrow, requesterRefund: escrow - totalRewards };
+  return { workers, escrow, requesterRefund: escrow - totalRewards + undistributed };
 }

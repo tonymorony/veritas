@@ -1,7 +1,7 @@
 import { describe, it, expect } from "vitest";
 import { scoreRound } from "../src/scorer";
 import type { Round, WorkerScore } from "../src/domain";
-import { buildRound, honest, fixed, mean, type WorkerSpec } from "./synthetic";
+import { buildRound, honest, fixed, random, mean, type WorkerSpec } from "./synthetic";
 
 const byWorker = (scores: WorkerScore[]): Record<string, WorkerScore> =>
   Object.fromEntries(scores.map((s) => [s.worker, s]));
@@ -42,5 +42,26 @@ describe("scoreRound — Correlated Agreement", () => {
     const honestMean = mean(honestIds.map((id) => scores[id]!.raw));
     expect(honestMean).toBeGreaterThan(0); // truthful reporting is genuinely rewarded
     expect(honestMean).toBeGreaterThan(scores["pop"]!.raw);
+  });
+
+  it("defeats a colluding subgroup that reports a fixed answer", () => {
+    const answerSpace = ["a", "b", "c"];
+    const honestIds = ["h1", "h2", "h3", "h4", "h5"];
+    const colluderIds = ["c1", "c2", "c3"];
+    const workers: WorkerSpec[] = [
+      ...honestIds.map((id) => ({ id, strategy: honest(0.8) })),
+      ...colluderIds.map((id) => ({ id, strategy: fixed("b") })), // pre-agreed fixed answer
+    ];
+
+    const round = buildRound({ answerSpace, numTasks: 14, workers, seed: 7 });
+    const scores = byWorker(scoreRound(round));
+
+    const honestMean = mean(honestIds.map((id) => scores[id]!.raw));
+    const colluderMean = mean(colluderIds.map((id) => scores[id]!.raw));
+
+    expect(honestMean).toBeGreaterThan(colluderMean);
+    for (const id of colluderIds) {
+      expect(scores[id]!.slashed).toBe(true); // collusion does not pay: raw <= 0
+    }
   });
 });

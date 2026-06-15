@@ -4,6 +4,12 @@ The trust and settlement layer for an agent-to-agent task marketplace. Agents pa
 for subjective work that has no verifiable ground truth; payment is gated by a peer-prediction
 mechanism that makes honest, high-effort reporting the dominant strategy.
 
+The canonical Task domain we demo and pitch is **subjective LLM-output evaluation** ("rate this
+response's helpfulness 1–5", "which of these 3 answers is best?") — trustless LLM-as-judge. The
+Task model stays general enough for other domains (moderation, labelling), but LLM-eval is the
+headline because it has infinite task supply, genuinely no ground truth, and emits a tangible
+artifact (a peer-validated Leaderboard).
+
 ## Language
 
 ### Marketplace
@@ -53,6 +59,12 @@ single answer space), worked by a pool of M recruited Workers. The N×M grid is 
 Agreement scores. Scoring runs once at round close; payouts for every Report in the round are
 computed then. A Round is posted as a whole — Requesters do not post Tasks individually.
 _Avoid_: batch, epoch, session
+
+**Leaderboard**:
+The published artifact a stream of Rounds produces: a peer-validated ranking/eval dataset of the
+things being evaluated (e.g. model responses). It is what makes the swarm's volume *productive*
+rather than circular — every Round emits a real, useful row.
+_Avoid_: ranking, scoreboard, results
 
 **Answer space**:
 The fixed, discrete set of permitted answers for every Task in a Round (e.g. {1,2,3,4,5} for a

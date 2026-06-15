@@ -1,4 +1,5 @@
 import { Chip } from "./ui";
+import { useVeritas } from "../store/useVeritas";
 
 function Mark({ className = "" }: { className?: string }) {
   return (
@@ -22,20 +23,67 @@ function Mark({ className = "" }: { className?: string }) {
   );
 }
 
+function EngineToggle() {
+  const engine = useVeritas((s) => s.engine);
+  const setEngine = useVeritas((s) => s.setEngine);
+  const opts: { id: "browser" | "server"; label: string }[] = [
+    { id: "browser", label: "In-browser" },
+    { id: "server", label: "Live server" },
+  ];
+  return (
+    <div className="flex rounded-full border border-line bg-panel p-0.5 text-xs">
+      {opts.map((o) => (
+        <button
+          key={o.id}
+          onClick={() => void setEngine(o.id)}
+          className={`rounded-full px-2.5 py-1 transition-colors ${
+            engine === o.id ? "bg-panel-2 text-fg" : "text-muted hover:text-fg"
+          }`}
+        >
+          {o.label}
+        </button>
+      ))}
+    </div>
+  );
+}
+
 export function TopBar() {
+  const engine = useVeritas((s) => s.engine);
+  const busy = useVeritas((s) => s.busy);
+  const serverOnline = useVeritas((s) => s.serverOnline);
+  const engineUsed = useVeritas((s) => s.engineUsed);
+
   return (
     <header className="flex items-center justify-between gap-4 border-b border-line bg-ink/60 px-6 py-3 backdrop-blur">
       <div className="flex items-center gap-2.5">
         <Mark className="h-7 w-7" />
         <span className="text-xl font-semibold tracking-tight text-fg">veritas</span>
-        <span className="ml-1 hidden text-sm text-muted sm:inline">
+        <span className="ml-1 hidden text-sm text-muted lg:inline">
           Get paid for the truth. <span className="text-muted/60">No oracle required.</span>
         </span>
       </div>
       <div className="flex items-center gap-2">
-        <Chip tone="scoring">
-          <span className="h-1.5 w-1.5 rounded-full bg-scoring" /> Arc testnet · mock
-        </Chip>
+        <EngineToggle />
+        {engine === "server" ? (
+          busy ? (
+            <Chip tone="scoring">
+              <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-scoring" /> running…
+            </Chip>
+          ) : !serverOnline ? (
+            <Chip tone="amber">
+              <span className="h-1.5 w-1.5 rounded-full bg-amber" /> server offline
+            </Chip>
+          ) : (
+            <Chip tone="honest">
+              <span className="h-1.5 w-1.5 rounded-full bg-honest" />
+              {engineUsed === "live" ? "live LLM agents" : "server · simulated"}
+            </Chip>
+          )
+        ) : (
+          <Chip tone="scoring">
+            <span className="h-1.5 w-1.5 rounded-full bg-scoring" /> in-browser sim
+          </Chip>
+        )}
         <Chip tone="honest">
           <span className="h-1.5 w-1.5 rounded-full bg-honest" /> Settled via Circle
         </Chip>

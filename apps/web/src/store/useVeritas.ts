@@ -1,6 +1,9 @@
 import { create } from "zustand";
 import { VeritasSim } from "../sim/engine";
 import type { RoundParams, RoundResult, SwarmComposition } from "../sim/types";
+import { runRoundLive, resetServer, pingServer } from "../sim/api";
+
+export type Engine = "browser" | "server";
 
 export const DEFAULT_PARAMS: RoundParams = {
   numTasks: 12,
@@ -63,12 +66,21 @@ interface VeritasState {
   rev: number;
   activePreset: string | null;
 
+  /** Where Rounds run: the in-browser sim, or the real backend (apps/server). */
+  engine: Engine;
+  /** True while a server Round is in flight. */
+  busy: boolean;
+  serverOnline: boolean;
+  /** What the server actually ran last: real LLM agents or its simulated fallback. */
+  engineUsed: "live" | "simulated" | null;
+
+  setEngine: (engine: Engine) => Promise<void>;
   setParam: <K extends keyof RoundParams>(key: K, value: RoundParams[K]) => void;
   setComposition: (partial: Partial<SwarmComposition>) => void;
   setSybils: (n: number) => void;
-  runRound: () => void;
-  runMany: (n: number) => void;
-  applyPreset: (preset: Preset) => void;
+  runRound: () => Promise<void>;
+  runMany: (n: number) => Promise<void>;
+  applyPreset: (preset: Preset) => Promise<void>;
   reset: () => void;
 }
 
@@ -84,6 +96,19 @@ export const useVeritas = create<VeritasState>((set, get) => ({
   history: [],
   rev: 0,
   activePreset: null,
+  engine: "browser",
+  busy: false,
+  serverOnline: false,
+  engineUsed: null,
+
+  setEngine: async (engine) => {
+    if (engine === "server") {
+      const online = await pingServer();
+      set({ engine, serverOnline: online });
+    } else {
+      set({ engine, serverOnline: false });
+    }
+  },
 
   setParam: (key, value) =>
     set((s) => ({ params: { ...s.params, [key]: value }, activePreset: null, rev: s.rev + 1 })),
@@ -100,12 +125,36 @@ export const useVeritas = create<VeritasState>((set, get) => ({
     set((s) => ({ composition, activePreset: null, rev: s.rev + 1 }));
   },
 
-  runRound: () => {
-    const result = get().sim.runRound(get().params);
+  runRound: async () => {
+    const { engine, params, composition, sim } = get();
+    if (engine === "server") {
+      set({ busy: true });
+      try {
+        const result = await runRoundLive(params, composition);
+        set((s) => ({
+          result,
+          engineUsed: result.engineUsed ?? "simulated",
+          serverOnline: true,
+          history: [...s.history, result].slice(-40),
+          rev: s.rev + 1,
+        }));
+        return;
+      } catch {
+        // never dead-end the demo: fall back to the in-browser sim
+        set({ serverOnline: false, engine: "browser" });
+      } finally {
+        set({ busy: false });
+      }
+    }
+    const result = sim.runRound(params);
     set((s) => ({ result, history: [...s.history, result].slice(-40), rev: s.rev + 1 }));
   },
 
-  runMany: (n) => {
+  runMany: async (n) => {
+    if (get().engine === "server") {
+      for (let i = 0; i < n; i++) await get().runRound();
+      return;
+    }
     const { sim, params } = get();
     let last: RoundResult | null = null;
     const batch: RoundResult[] = [];
@@ -116,7 +165,7 @@ export const useVeritas = create<VeritasState>((set, get) => ({
     set((s) => ({ result: last, history: [...s.history, ...batch].slice(-40), rev: s.rev + 1 }));
   },
 
-  applyPreset: (preset) => {
+  applyPreset: async (preset) => {
     const composition = preset.composition;
     const sim = makeSim(composition);
     set((s) => ({
@@ -128,12 +177,18 @@ export const useVeritas = create<VeritasState>((set, get) => ({
       activePreset: preset.id,
       rev: s.rev + 1,
     }));
+    if (get().engine === "server") {
+      await resetServer().catch(() => {});
+      await get().runRound();
+      return;
+    }
     // run a first round so the dashboard is populated immediately
     const result = sim.runRound({ ...get().params });
     set((s) => ({ result, history: [result], rev: s.rev + 1 }));
   },
 
   reset: () => {
+    if (get().engine === "server") resetServer().catch(() => {});
     const sim = makeSim(DEFAULT_COMPOSITION);
     set({
       sim,

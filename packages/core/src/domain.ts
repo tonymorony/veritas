@@ -63,6 +63,8 @@ export interface Settlement {
   escrow: number;
   /** Escrow returned to the Requester (the gap between max and quality-scaled payouts). */
   requesterRefund: number;
+  /** Slashed Stake with no honest recipient, routed to the protocol treasury (ADR-0007). */
+  treasury: number;
   /** True when the Round failed Quorum: fully refunded, no slash, no Leaderboard rows. */
   voided: boolean;
 }

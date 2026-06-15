@@ -28,6 +28,7 @@ export function settleRound(round: Round, params: SettlementParams): Settlement 
       })),
       escrow,
       requesterRefund: escrow,
+      treasury: 0,
       voided: true,
     };
   }
@@ -50,21 +51,26 @@ export function settleRound(round: Round, params: SettlementParams): Settlement 
     };
   });
 
-  // Redistribute slashed Stake to honest (above-threshold) Workers, pro-rata by reward.
-  // Stakes are uniform, so a quality weight is what makes "pro-rata" meaningful: the
-  // most honest/productive Workers absorb the largest share of the colluders' Stake.
+  // Redistribute slashed Stake to honest (above-threshold) Workers in equal shares.
+  // Stakes are uniform, so "pro-rata" is an even split — quality is already paid through
+  // base_reward × normalized, so redistribution stays a flat honest-Worker dividend.
   const totalSlashed = workers.reduce((a, w) => a + w.slashed, 0);
-  const honestReward = workers.reduce((a, w) => a + (w.slashed === 0 ? w.reward : 0), 0);
-  if (totalSlashed > 0 && honestReward > 0) {
-    for (const w of workers) {
-      if (w.slashed === 0) w.redistribution = totalSlashed * (w.reward / honestReward);
-    }
+  const honest = workers.filter((w) => w.slashed === 0);
+  if (totalSlashed > 0 && honest.length > 0) {
+    const share = totalSlashed / honest.length;
+    for (const w of honest) w.redistribution = share;
   }
-  // With no honest recipient, slashed Stake has nowhere to go; it refunds to the
-  // Requester rather than vanishing (keeps USDC conserved).
-  const undistributed = honestReward > 0 ? 0 : totalSlashed;
+  // With no honest recipient, slashed Stake has nowhere to go; it goes to the protocol
+  // treasury, never the Requester (ADR-0007), keeping USDC conserved.
+  const treasury = honest.length > 0 ? 0 : totalSlashed;
 
   const totalRewards = workers.reduce((a, w) => a + w.reward, 0);
 
-  return { workers, escrow, requesterRefund: escrow - totalRewards + undistributed, voided: false };
+  return {
+    workers,
+    escrow,
+    requesterRefund: escrow - totalRewards,
+    treasury,
+    voided: false,
+  };
 }

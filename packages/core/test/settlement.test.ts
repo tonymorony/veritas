@@ -55,7 +55,7 @@ describe("settleRound — payouts", () => {
     expect(settlement.requesterRefund).toBeGreaterThan(0);
   });
 
-  it("redistributes slashed Stake to honest Workers, reward-weighted", () => {
+  it("redistributes slashed Stake to honest Workers in equal shares", () => {
     const signal = ["a", "b", "c"];
     const round: Round = {
       answerSpace: ["a", "b", "c"],
@@ -65,12 +65,12 @@ describe("settleRound — payouts", () => {
     const settlement = settleRound(round, { baseReward: 10, stake: 8 });
     const byWorker = Object.fromEntries(settlement.workers.map((w) => [w.worker, w]));
 
-    // The single slashed Worker forfeits 4; that 4 is shared among the honest Workers.
+    // The single slashed Worker forfeits 4; that 4 is split evenly among the 3 honest Workers.
     const totalRedistributed = settlement.workers.reduce((a, w) => a + w.redistribution, 0);
     expect(totalRedistributed).toBeCloseTo(4); // == total slashed (Stake is conserved)
     expect(byWorker["k"]!.redistribution).toBeCloseTo(0); // a slashed Worker gets no share
 
-    // honest Workers earn equal reward here, so they split the slashed Stake evenly
+    // equal shares, independent of each honest Worker's reward (4 / 3 honest Workers)
     for (const id of ["w1", "w2", "w3"]) {
       expect(byWorker[id]!.redistribution).toBeCloseTo(4 / 3);
     }
@@ -125,18 +125,19 @@ describe("settleRound — money conservation", () => {
       const stakeIn = params.stake * s.workers.length;
       const out =
         s.workers.reduce((a, w) => a + w.reward + w.stakeReturned + w.redistribution, 0) +
-        s.requesterRefund;
+        s.requesterRefund +
+        s.treasury;
 
-      // No USDC is created or destroyed: every slashed cent reappears as a payout,
-      // a returned Stake, a redistribution, or a refund.
+      // No USDC is created or destroyed: every slashed cent reappears as a payout, a
+      // returned Stake, a redistribution, a refund, or the treasury.
       expect(out).toBeCloseTo(s.escrow + stakeIn);
     }
   });
 
-  it("conserves USDC even when every Worker is slashed (no honest recipient)", () => {
+  it("routes orphaned slashed Stake to the treasury when no Worker is honest", () => {
     // All Workers report the same fixed answer: no Task-correlated signal, so every
-    // raw score is ≤ 0 and everyone is slashed. The slashed Stake has nowhere honest
-    // to go and must still be accounted for (it refunds to the Requester).
+    // raw score is ≤ 0 and everyone is slashed. With no honest recipient the forfeited
+    // Stake goes to the treasury, not the Requester (ADR-0007).
     const answerSpace = ["a", "b", "c"];
     const workers: WorkerSpec[] = ["x1", "x2", "x3", "x4"].map((id) => ({
       id,
@@ -147,10 +148,15 @@ describe("settleRound — money conservation", () => {
     const s = settleRound(round, params);
 
     expect(s.workers.every((w) => w.slashed > 0)).toBe(true);
+    const totalSlashed = s.workers.reduce((a, w) => a + w.slashed, 0);
+    expect(s.treasury).toBeCloseTo(totalSlashed); // orphaned Stake → treasury
+    expect(s.requesterRefund).toBeCloseTo(s.escrow); // Requester gets only its own Escrow back
+
     const stakeIn = params.stake * s.workers.length;
     const out =
       s.workers.reduce((a, w) => a + w.reward + w.stakeReturned + w.redistribution, 0) +
-      s.requesterRefund;
+      s.requesterRefund +
+      s.treasury;
     expect(out).toBeCloseTo(s.escrow + stakeIn);
   });
 });

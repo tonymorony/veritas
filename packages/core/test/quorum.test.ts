@@ -1,14 +1,7 @@
 import { describe, it, expect } from "vitest";
 import { meetsQuorum } from "../src/quorum";
-import type { Round, Report } from "../src/domain";
-
-const gridFor = (specs: Record<string, string[]>): Report[] => {
-  const reports: Report[] = [];
-  for (const [worker, answers] of Object.entries(specs)) {
-    answers.forEach((answer, i) => reports.push({ worker, task: `t${i}`, answer }));
-  }
-  return reports;
-};
+import type { Round } from "../src/domain";
+import { gridFor } from "./synthetic";
 
 describe("meetsQuorum", () => {
   it("accepts a Round with ≥3 revealing Workers and ≥2 reveals on every Task", () => {

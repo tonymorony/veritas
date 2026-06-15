@@ -1,7 +1,7 @@
 import { describe, it, expect } from "vitest";
 import { scoreRound } from "../src/scorer";
 import type { Round, WorkerScore, Report } from "../src/domain";
-import { buildRound, honest, fixed, random, mean, type WorkerSpec } from "./synthetic";
+import { buildRound, gridFor, honest, fixed, random, mean, type WorkerSpec } from "./synthetic";
 
 const byWorker = (scores: WorkerScore[]): Record<string, WorkerScore> =>
   Object.fromEntries(scores.map((s) => [s.worker, s]));
@@ -92,14 +92,6 @@ describe("scoreRound — Correlated Agreement", () => {
 });
 
 describe("normalization and honesty threshold", () => {
-  const gridFor = (specs: Record<string, string[]>): Report[] => {
-    const reports: Report[] = [];
-    for (const [worker, answers] of Object.entries(specs)) {
-      answers.forEach((answer, i) => reports.push({ worker, task: `t${i}`, answer }));
-    }
-    return reports;
-  };
-
   it("maps a perfectly-correlated Round to normalized 1, not slashed", () => {
     // Distinct answer per Task (answerSpace size == #Tasks) => zero chance-agreement
     // baseline => raw hits its ceiling of 1.

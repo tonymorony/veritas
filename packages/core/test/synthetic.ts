@@ -66,3 +66,15 @@ export function buildRound(opts: {
 }
 
 export const mean = (xs: number[]): number => xs.reduce((a, b) => a + b, 0) / xs.length;
+
+/**
+ * Build a worker×task grid from explicit per-Worker answer lists, e.g.
+ * `gridFor({ w1: ["a", "b"], w2: ["a", "b"] })` → Reports on Tasks t0, t1.
+ */
+export function gridFor(specs: Record<string, Answer[]>): Report[] {
+  const reports: Report[] = [];
+  for (const [worker, answers] of Object.entries(specs)) {
+    answers.forEach((answer, i) => reports.push({ worker, task: `t${i}`, answer }));
+  }
+  return reports;
+}

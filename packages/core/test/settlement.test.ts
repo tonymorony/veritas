@@ -1,15 +1,7 @@
 import { describe, it, expect } from "vitest";
 import { settleRound } from "../src/settlement";
-import type { Round, Report } from "../src/domain";
-import { buildRound, honest, fixed, random, type WorkerSpec } from "./synthetic";
-
-const gridFor = (specs: Record<string, string[]>): Report[] => {
-  const reports: Report[] = [];
-  for (const [worker, answers] of Object.entries(specs)) {
-    answers.forEach((answer, i) => reports.push({ worker, task: `t${i}`, answer }));
-  }
-  return reports;
-};
+import type { Round } from "../src/domain";
+import { buildRound, gridFor, honest, fixed, random, type WorkerSpec } from "./synthetic";
 
 describe("settleRound — payouts", () => {
   it("pays an honest, perfectly-correlated Round in full and refunds nothing", () => {

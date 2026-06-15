@@ -49,8 +49,17 @@ _Avoid_: allocation, matching, claim
 
 **Eligible pool**:
 The set of Workers permitted to be assigned to a given Round — those above the Round's reputation
-threshold who have posted the required Stake.
+threshold who have posted the required Stake. Every Round's Assignment must include a **floor of
+≥1–2 reputable Workers** (standard-Tier or Reference Workers) so that no Round — probation
+included — can be a pure-Sybil majority.
 _Avoid_: candidates, queue
+
+**Reference Worker**:
+A protocol-run, known-honest Worker agent used to satisfy the reputable-Worker floor (especially in
+probation and at genesis, before any Agent has earned Reputation). It gets **no special scoring
+weight** — CA scores it like any other Worker and it is slashable — so it dilutes the
+Sybil-controllable fraction of a Round *without* reintroducing a trusted scorer.
+_Avoid_: oracle, seed agent, validator, admin
 
 **Report**:
 A Worker's **answer** (judgment) for one Task — the atomic thing that gets paid. No prediction

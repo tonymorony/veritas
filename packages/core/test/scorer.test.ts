@@ -1,6 +1,6 @@
 import { describe, it, expect } from "vitest";
 import { scoreRound } from "../src/scorer";
-import type { Round, WorkerScore } from "../src/domain";
+import type { Round, WorkerScore, Report } from "../src/domain";
 import { buildRound, honest, fixed, random, mean, type WorkerSpec } from "./synthetic";
 
 const byWorker = (scores: WorkerScore[]): Record<string, WorkerScore> =>
@@ -88,5 +88,46 @@ describe("scoreRound — Correlated Agreement", () => {
     expect(honestAvg).toBeGreaterThan(0.2); // truthful clearly rewarded
     expect(randomAvg).toBeLessThan(honestAvg);
     expect(Math.abs(randomAvg)).toBeLessThan(0.05); // noise earns ~nothing in expectation
+  });
+});
+
+describe("normalization and honesty threshold", () => {
+  const gridFor = (specs: Record<string, string[]>): Report[] => {
+    const reports: Report[] = [];
+    for (const [worker, answers] of Object.entries(specs)) {
+      answers.forEach((answer, i) => reports.push({ worker, task: `t${i}`, answer }));
+    }
+    return reports;
+  };
+
+  it("maps a perfectly-correlated Round to normalized 1, not slashed", () => {
+    // Distinct answer per Task (answerSpace size == #Tasks) => zero chance-agreement
+    // baseline => raw hits its ceiling of 1.
+    const signal = ["a", "b", "c"];
+    const round: Round = {
+      answerSpace: ["a", "b", "c"],
+      reports: gridFor({ w1: signal, w2: signal, w3: signal }),
+    };
+
+    for (const s of scoreRound(round)) {
+      expect(s.raw).toBeCloseTo(1);
+      expect(s.normalized).toBe(1);
+      expect(s.slashed).toBe(false);
+    }
+  });
+
+  it("maps a sub-threshold (raw <= 0) Worker to normalized 0 and slashed", () => {
+    const signal = ["a", "b", "c"];
+    const round: Round = {
+      answerSpace: ["a", "b", "c"],
+      // three correlated Workers + one constant Worker carrying no Task signal
+      reports: gridFor({ w1: signal, w2: signal, w3: signal, k: ["a", "a", "a"] }),
+    };
+
+    const scores = byWorker(scoreRound(round));
+    expect(scores["k"]!.raw).toBeLessThanOrEqual(0);
+    expect(scores["k"]!.normalized).toBe(0);
+    expect(scores["k"]!.slashed).toBe(true);
+    expect(scores["w1"]!.slashed).toBe(false); // honest Worker still rewarded
   });
 });

@@ -2,8 +2,6 @@ import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { Container } from "./primitives";
 
-const DEMO_URL = "http://localhost:4173";
-
 const links = [
   { label: "How it works", href: "#how-it-works" },
   { label: "Mechanism", href: "#mechanism" },
@@ -51,19 +49,6 @@ export function Nav() {
             </a>
           ))}
         </nav>
-
-        <a
-          href={DEMO_URL}
-          target="_blank"
-          rel="noreferrer"
-          className="group inline-flex items-center gap-2 rounded-full border border-line bg-panel/60 px-4 py-2 text-sm font-medium text-fg transition-all hover:border-honest/40 hover:text-honest"
-        >
-          <span className="relative flex h-1.5 w-1.5">
-            <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-honest opacity-60" />
-            <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-honest" />
-          </span>
-          Launch live demo
-        </a>
       </Container>
     </motion.header>
   );

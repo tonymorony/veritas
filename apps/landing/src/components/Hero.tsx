@@ -75,7 +75,7 @@ export function Hero() {
               rel="noreferrer"
               className="btn-cta btn-cta--primary group w-full sm:w-auto"
             >
-              Launch the live demo
+              Launch app
               <svg className="h-4 w-4 transition-transform duration-300 group-hover:translate-x-0.5" viewBox="0 0 16 16" fill="none" aria-hidden="true">
                 <path d="M3 8h9M8.5 4l4 4-4 4" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" />
               </svg>

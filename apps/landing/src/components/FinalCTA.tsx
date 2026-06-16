@@ -50,7 +50,7 @@ export function FinalCTA() {
               href={DEMO_URL}
               target="_blank"
               rel="noreferrer"
-              className="group inline-flex w-full items-center justify-center gap-2 rounded-full bg-honest px-7 py-3.5 text-sm font-semibold text-ink transition-all duration-300 hover:shadow-[0_0_50px_-8px] hover:shadow-honest/70 sm:w-auto"
+              className="btn-cta btn-cta--primary group w-full sm:w-auto"
             >
               Launch the live demo
               <svg className="h-4 w-4 transition-transform duration-300 group-hover:translate-x-0.5" viewBox="0 0 16 16" fill="none" aria-hidden="true">
@@ -61,7 +61,7 @@ export function FinalCTA() {
               href={DOCS_URL}
               target="_blank"
               rel="noreferrer"
-              className="inline-flex w-full items-center justify-center gap-2 rounded-full border border-line bg-panel/40 px-7 py-3.5 text-sm font-semibold text-fg transition-all duration-300 hover:border-fg/30 hover:bg-panel sm:w-auto"
+              className="btn-cta btn-cta--ghost w-full sm:w-auto"
             >
               Read the docs
             </a>

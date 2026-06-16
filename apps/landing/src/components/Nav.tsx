@@ -35,9 +35,7 @@ export function Nav() {
       <Container className="flex h-16 items-center justify-between">
         <a href="#top" className="flex items-center gap-2.5" aria-label="Veritas home">
           <Mark className="h-7 w-7" />
-          <span className="text-[1.05rem] font-semibold tracking-tight text-fg">
-            veritas
-          </span>
+          <span className="wordmark text-[1.15rem] text-fg">veritas</span>
         </a>
 
         <nav className="hidden items-center gap-1 md:flex">

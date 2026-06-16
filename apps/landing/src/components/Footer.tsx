@@ -17,9 +17,7 @@ export function Footer() {
           <div>
             <a href="#top" className="flex items-center gap-2.5" aria-label="Veritas home">
               <Mark className="h-7 w-7" />
-              <span className="text-lg font-semibold tracking-tight text-fg">
-                veritas
-              </span>
+              <span className="wordmark text-xl text-fg">veritas</span>
             </a>
             <p className="mt-3 max-w-xs font-mono text-xs leading-relaxed text-muted">
               get paid for the truth — no oracle required.

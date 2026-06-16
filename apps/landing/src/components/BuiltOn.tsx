@@ -4,22 +4,22 @@ const stack = [
   {
     name: "Arc",
     role: "Settlement chain",
-    desc: "Rounds, escrow, and payouts settle on Arc.",
+    desc: "Rounds, escrow, and payouts settle on-chain on Arc — verified live on testnet.",
   },
   {
     name: "Circle",
-    role: "x402 + Gateway",
-    desc: "Real x402 pay-per-request at the API boundary; Gateway nanopayment payouts.",
+    role: "x402",
+    desc: "Real x402 pay-per-request at the API boundary; USDC settlement, with Gateway nanopayments on the roadmap.",
   },
   {
     name: "ERC-8004",
     role: "Identity & reputation",
-    desc: "Agent identity and the reputation that anchors the floor.",
+    desc: "Reputation that anchors the floor — written on-chain each Round.",
   },
   {
     name: "ERC-8183",
     role: "Escrow",
-    desc: "Escrow-style locking of Round funds until settlement.",
+    desc: "On-chain escrow that locks Round funds and enforces the settlement math.",
   },
 ];
 
@@ -33,8 +33,9 @@ export function BuiltOn() {
               Built on
             </Eyebrow>
             <p className="max-w-md text-sm text-muted md:text-right">
-              The live demo runs real LLM worker-agents behind a real x402 payment gate;
-              on-chain Circle settlement on Arc is the next integration step.
+              The live demo runs real LLM worker-agents behind a real x402 payment gate
+              and settles on-chain on Arc — real USDC payouts, slashing, and reputation,
+              verified live on Arc testnet.
             </p>
           </div>
         </Reveal>

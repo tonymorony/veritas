@@ -96,10 +96,10 @@ export function Hero() {
           initial={{ opacity: 0, y: 48, scale: 0.97 }}
           animate={{ opacity: 1, y: 0, scale: 1 }}
           transition={{ duration: 1, ease, delay: 0.35 }}
-          className="relative mx-auto mt-16 max-w-5xl md:mt-20"
+          className="relative mx-auto mt-24 max-w-5xl md:mt-28"
         >
-          {/* readout row */}
-          <div className="absolute -top-7 left-1/2 z-10 hidden -translate-x-1/2 gap-px overflow-hidden rounded-lg border border-line bg-panel/90 backdrop-blur md:flex">
+          {/* readout row — floats fully above the frame (its own height + a small gap) */}
+          <div className="absolute -top-3 left-1/2 z-10 hidden -translate-x-1/2 -translate-y-full gap-px overflow-hidden rounded-lg border border-line bg-panel/90 backdrop-blur md:flex">
             <Readout label="TRUTH MATCH" value="100%" tone="honest" />
             <Readout label="ROUND STATUS" value="HEALTHY" tone="scoring" />
             <Readout label="SLASHED" value="0.00" tone="muted" />

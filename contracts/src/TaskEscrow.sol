@@ -203,8 +203,8 @@ contract TaskEscrow is Ownable, ReentrancyGuard {
 
     /// @notice Join a Round as a Worker by posting Stake and a commit hash.
     /// @dev commit = keccak256(abi.encode(answer, salt)). Assignment and the reputable-majority
-    ///      floor (ADR-0005) are enforced off-chain by the operator; this is open-join for the
-    ///      hackathon and the operator only scores the assigned set. A Worker joins once.
+    ///      floor (ADR-0005) are enforced off-chain by the operator; this is open-join in this
+    ///      version and the operator only scores the assigned set. A Worker joins once.
     /// @param roundId The Round to join.
     /// @param commitHash The Worker's binding commitment.
     function joinAndCommit(uint256 roundId, bytes32 commitHash) external nonReentrant {

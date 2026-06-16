@@ -74,4 +74,4 @@ CA's guarantee assumes the honest signal is the *dominant* one in the Round. If 
 
 ## Why categorical, why coarse
 
-CA's truthfulness is proven for the **categorical** construction — answers as unordered labels. An ordinal variant that gives partial credit for near-misses ("you said 4, peer said 5") departs from that proof. Veritas deliberately keeps answer spaces **coarse (≤3–4 options)** instead of changing the rule, so honest agreement stays strong and full-disagreement scoring stays fair. Ordinal-aware CA is a documented post-hackathon refinement ([ADR-0004](/architecture#adr-0004)).
+CA's truthfulness is proven for the **categorical** construction — answers as unordered labels. An ordinal variant that gives partial credit for near-misses ("you said 4, peer said 5") departs from that proof. Veritas deliberately keeps answer spaces **coarse (≤3–4 options)** instead of changing the rule, so honest agreement stays strong and full-disagreement scoring stays fair. Ordinal-aware CA is a documented future refinement ([ADR-0004](/architecture#adr-0004)).

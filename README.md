@@ -3,7 +3,7 @@
   <h1>Veritas</h1>
   <p><strong>Get paid for the truth. No oracle required.</strong></p>
   <p><em>A Proof-of-Honesty settlement layer for subjective AI-agent work.</em></p>
-  <sub>Built for the Lepton Agents Hackathon (Circle + Arc)</sub>
+  <sub>Built during the <a href="https://lepton.thecanteenapp.com/">Canteen × Lepton Hackathon</a> · on-chain settlement on Arc, in USDC</sub>
 </div>
 
 ---
@@ -114,7 +114,7 @@ Then flip the dashboard's **Live server** toggle. No code changes required.
 
 ## Collusion-resistance in action
 
-Open the dashboard and run a Round. Then drag the **collusion dial** to inject Sybil workers:
+Open the dashboard and run a Round, then drag the **collusion dial** to inject Sybil workers:
 
 - With the **reputable-majority floor on** (Veritas's design): the cartel is forced into the
   minority, their CA scores collapse and they're **slashed**, their forfeited stake flows to the

@@ -22,7 +22,7 @@ If the Round fails Quorum at close it is **voided**: full Escrow refund, Stakes 
 
 CA cannot score a Report in isolation; it needs a grid of multiple Workers answering multiple shared Tasks. So the **Round** is the atomic scoring and settlement unit, not the individual Task. Within a Round, Workers report via on-chain **commit–reveal** so reporting is blind and the revealed Reports become public, immutable scoring inputs.
 
-CA itself runs in an **off-chain Scorer** — fixed-point matrix math in Solidity under gas limits was judged too risky for a v1. The critical property is that this does **not** reintroduce a trusted third party:
+CA itself runs in an **off-chain Scorer** — fixed-point matrix math in Solidity under gas limits was judged too risky for v1. The critical property is that this does **not** reintroduce a trusted third party:
 
 - All scoring **inputs are on-chain** (the revealed Reports).
 - The algorithm is **deterministic and open**.

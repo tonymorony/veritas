@@ -41,7 +41,15 @@ export function Footer() {
 
         <div className="mt-12 flex flex-col items-start justify-between gap-3 border-t border-line/60 pt-6 sm:flex-row sm:items-center">
           <p className="font-mono text-xs text-muted">
-            Built for the Lepton Agents Hackathon &middot; Circle + Arc
+            Built during the{" "}
+            <a
+              href="https://lepton.thecanteenapp.com/"
+              target="_blank"
+              rel="noreferrer"
+              className="underline decoration-line underline-offset-2 transition-colors hover:text-fg"
+            >
+              Canteen &times; Lepton Hackathon
+            </a>
           </p>
           <p className="font-mono text-xs text-muted/70">
             &copy; {new Date().getFullYear()} Veritas

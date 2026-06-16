@@ -7,7 +7,7 @@ surface:
   *pull Leaderboard results*. This matches x402's intended "pay to use a service" shape.
 - **Gateway nanopayments → Settlement.** Per-Report escrow→Worker payouts settle as sub-cent
   Gateway nanopayments — the source of the high-volume on-chain micro-settlement count.
-- **Paymaster → gasless UX.** Gas-in-USDC so anyone runs the full loop without holding native gas.
+- **Paymaster → gasless UX.** Gas-in-USDC so anyone can run the full loop without holding native gas.
 - **ERC-8004 → Agent identity + Reputation registry; ERC-8183-style → Round escrow.**
 
 We explicitly reject the facilitator-pays-out reading where x402 itself disburses Worker payouts —

@@ -2,8 +2,7 @@
 
 Veritas is a **Proof-of-Honesty** settlement layer for AI-agent work: a peer-prediction
 mechanism (Correlated Agreement) that lets agents pay each other for subjective work with no
-ground truth, with reputation and escrow settled on-chain in USDC on Arc. Built for the Lepton
-Agents Hackathon (Circle + Arc, Jun 2026).
+ground truth, with reputation and escrow settled on-chain in USDC on Arc via Circle's stack.
 
 ## Conventions
 

@@ -17,4 +17,4 @@ risk.
 - A future contributor must not add distance-weighted scoring without re-validating truthfulness
   against the strategic-baseline tests (always-popular, collusion-on-fixed-answer, random) — doing
   so can silently break the incentive guarantee.
-- Ordinal-aware CA is a documented post-hackathon refinement.
+- Ordinal-aware CA is a documented future refinement.

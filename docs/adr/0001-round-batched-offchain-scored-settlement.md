@@ -17,7 +17,7 @@ every payout. Settlement still fans out as per-Report x402 nanopayments.
 ## Considered options
 
 - **On-chain CA computation** — maximally trustless, but fixed-point matrix math in Solidity under
-  gas limits was judged too risky for a v1.
+  gas limits was judged too risky for v1.
 - **Trusted off-chain operator** — simplest, but reinstates the trusted third party the project
   exists to remove.
 - **Live per-Task marketplace** — better UX, but no peer grid means no valid CA score.

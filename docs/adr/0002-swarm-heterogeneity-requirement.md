@@ -15,4 +15,4 @@ diversity is what makes "honest agreement" distinguishable from "everyone parrot
 - A future contributor must not "simplify" the Swarm to one model — doing so silently breaks the
   mechanism's validity.
 - Fallback if a provider is unavailable: distinct system-prompt personas over fewer models,
-  explicitly noted as degrading signal diversity (and to be called out in the internal docs if used).
+  explicitly noted as degrading signal diversity (and to be documented if used).

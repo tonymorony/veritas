@@ -19,7 +19,7 @@ recompute — verifiable, not trusted). The optimistic-challenge path is out of 
 1. **openRound** — Requester locks Escrow = `baseReward × numTasks × maxWorkers` (the maximum
    payout, when all M Workers score a perfect 1.0). Requester must `approve` the escrow first.
 2. **joinAndCommit** — each Worker posts `stakeAmount` and `commit = keccak256(abi.encode(answer, salt))`.
-   Open-join for the hackathon; Assignment and the reputable-majority floor (ADR-0005) are
+   Open-join in this version; Assignment and the reputable-majority floor (ADR-0005) are
    enforced off-chain by the operator, which scores only the assigned set.
 3. **reveal** — after committing, Worker submits `(answer, salt)`; verified against the commit.
 4. **settle** — operator-only, after off-chain CA scoring. Enforces:

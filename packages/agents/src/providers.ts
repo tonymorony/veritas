@@ -34,13 +34,34 @@ function randomOption(options: readonly string[], rng: () => number): string {
 }
 
 /**
- * Map free-form model text onto a valid Answer label. Looks for an exact/﻿substring match
- * of any option (case-insensitive); falls back to a random valid label so a malformed
- * response never breaks a Round.
+ * Map free-form model text onto a valid Answer label. The judge is instructed to emit a
+ * strict `{"answer":"<model>"}` JSON object; we first try to parse that, then fall back to
+ * an earliest-mention substring scan over the raw text, and finally to a random valid label
+ * so a malformed response never breaks a Round.
  */
 export function parseAnswer(text: string, options: readonly string[], rng: () => number): string {
+  const matchOption = (candidate: string): string | undefined => {
+    const c = candidate.toLowerCase().trim();
+    return options.find((opt) => opt.toLowerCase() === c);
+  };
+
+  // 1. Preferred path: a JSON object with an "answer" field, possibly wrapped in prose or
+  //    fenced code. Scan all {...} blocks and take the first whose answer is a valid option.
+  for (const m of text.matchAll(/\{[^{}]*\}/g)) {
+    try {
+      const obj = JSON.parse(m[0]) as Record<string, unknown>;
+      const ans = obj.answer ?? obj.model ?? obj.best;
+      if (typeof ans === "string") {
+        const exact = matchOption(ans);
+        if (exact) return exact;
+      }
+    } catch {
+      // not valid JSON — fall through to the substring scan
+    }
+  }
+
+  // 2. Fallback: earliest-mentioned option in the raw text, so "GPT-5, then Claude" picks GPT-5.
   const lower = text.toLowerCase();
-  // Prefer the earliest-mentioned option, so "GPT-5, then Claude" picks GPT-5.
   let best: { opt: string; idx: number } | undefined;
   for (const opt of options) {
     const idx = lower.indexOf(opt.toLowerCase());
@@ -50,12 +71,26 @@ export function parseAnswer(text: string, options: readonly string[], rng: () =>
 }
 
 const SYSTEM =
-  "You are an impartial evaluation judge. You will be given a task and a closed list of " +
-  "candidate model names. Reply with ONLY the single best model name from the list, exactly " +
-  "as written, and nothing else.";
+  "You are an impartial, per-task evaluation judge. For each task you are given the task's " +
+  "specific demands and a closed list of candidate models. Reason from THIS task's demands " +
+  "and choose the single model whose strengths best fit it.\n\n" +
+  "Candidate strength profiles (balanced — no model is best at everything):\n" +
+  "- GPT-5: strong at precise coding, algorithms, regex/SQL, and step-by-step technical reasoning.\n" +
+  "- Claude: strong at long-context faithfulness, careful editing/refactoring, nuanced writing, and rigorous review.\n" +
+  "- Gemini: strong at multimodal (charts/images), translation, and concise marketing/creative copy.\n" +
+  "- Llama: lightweight and strong at open-ended creative and casual short-form generation.\n\n" +
+  "Rules: pick the best FIT for the specific task, not your favourite. Do NOT default to one " +
+  "model across tasks, and do NOT show any self-preference toward your own model family. " +
+  "Different tasks should genuinely yield different answers. " +
+  'Reply with ONLY a single JSON object of the exact form {"answer":"<one of the exact ' +
+  'candidate names>"} — no prose, no code fences, nothing else.';
 
 function userPrompt(input: JudgeInput): string {
-  return `Task: ${input.prompt}\n\nCandidates: ${input.options.join(", ")}\n\nBest model:`;
+  return (
+    `Task: ${input.prompt}\n\n` +
+    `Candidates (answer with EXACTLY one of these): ${input.options.join(", ")}\n\n` +
+    `Respond with only {"answer":"<model>"}.`
+  );
 }
 
 // --- Real LLM adapters ------------------------------------------------------------------
@@ -85,7 +120,7 @@ export function anthropicProvider(model = "claude-haiku-4-5"): JudgeProvider {
         };
         const res = await client.messages.create({
           model,
-          max_tokens: 16,
+          max_tokens: 32,
           system: SYSTEM,
           messages: [{ role: "user", content: userPrompt(input) }],
         });
@@ -123,7 +158,7 @@ export function openaiProvider(model = "gpt-4o-mini"): JudgeProvider {
         };
         const res = await client.chat.completions.create({
           model,
-          max_tokens: 16,
+          max_tokens: 32,
           messages: [
             { role: "system", content: SYSTEM },
             { role: "user", content: userPrompt(input) },

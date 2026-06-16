@@ -1,7 +1,7 @@
 import { describe, it, expect } from "vitest";
 import { VeritasMarketplace } from "../src/runner";
-import { MODELS } from "../src/dataset";
-import type { JudgeProvider } from "../src/providers";
+import { MODELS, DATASET } from "../src/dataset";
+import { simulatedProvider, type JudgeProvider } from "../src/providers";
 import type { RoundParams } from "../src/types";
 
 const base: RoundParams = {
@@ -71,6 +71,40 @@ describe("VeritasMarketplace — simulated engine matches the mechanism", () => 
         s.requesterRefund +
         s.treasury;
       expect(out).toBeCloseTo(s.escrow + stakeIn);
+    }
+  });
+});
+
+describe("dataset — simulated honest grid has cross-task variance (the property CA needs)", () => {
+  // The simulated reference/honest judges answer per-Task from the latent truth, exactly as
+  // runner.answerFor calls them (truth = task.bestModel, seed = taskIdx). A grid that is
+  // constant across Tasks has zero cross-task variance and CA correctly scores it raw=0; this
+  // asserts the dataset + simulated path produce a genuinely discriminating column.
+  const answersOver = (judge: JudgeProvider) =>
+    Promise.all(
+      DATASET.map((task, t) => judge.judge({ prompt: task.prompt, options: MODELS, truth: task.bestModel, seed: t })),
+    );
+
+  it("the dataset's bestModel distribution is balanced (no single model dominates)", () => {
+    const counts: Record<string, number> = {};
+    for (const t of DATASET) counts[t.bestModel] = (counts[t.bestModel] ?? 0) + 1;
+    expect(Object.keys(counts).length).toBe(MODELS.length);
+    // No model is the bestModel for more than half the Tasks.
+    for (const m of MODELS) expect(counts[m] ?? 0).toBeLessThanOrEqual(DATASET.length / 2);
+  });
+
+  it("reference and honest judges produce ≥3 distinct answers and never a single constant answer", async () => {
+    for (const judge of [
+      simulatedProvider({ kind: "reference" }),
+      simulatedProvider({ kind: "honest", accuracy: 0.85 }),
+    ]) {
+      const answers = await answersOver(judge);
+      const distinct = new Set(answers);
+      expect(distinct.size).toBeGreaterThanOrEqual(3);
+      // No single answer covers every Task — that would be zero-variance (CA slashes it).
+      for (const m of MODELS) {
+        expect(answers.filter((a) => a === m).length).toBeLessThan(DATASET.length);
+      }
     }
   });
 });

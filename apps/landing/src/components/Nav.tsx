@@ -74,21 +74,21 @@ export function Nav() {
 export function Mark({ className = "" }: { className?: string }) {
   return (
     <svg viewBox="0 0 100 100" className={className} fill="none" aria-hidden="true">
-      <defs>
-        <linearGradient id="vnav" x1="26" y1="68" x2="80" y2="28" gradientUnits="userSpaceOnUse">
-          <stop stopColor="#5B8DEF" />
-          <stop offset="1" stopColor="#86B4FF" />
-        </linearGradient>
-      </defs>
-      <path
-        d="M26 50 L44 68 L80 28"
-        stroke="url(#vnav)"
-        strokeWidth="9"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
-      <circle cx="44" cy="68" r="15" fill="none" stroke="#3DDC97" strokeWidth="2.5" opacity="0.45" />
-      <circle cx="44" cy="68" r="9" fill="#3DDC97" />
+      <g strokeWidth="4" strokeLinecap="round">
+        <line x1="50" y1="30" x2="50" y2="10" stroke="#5B8DEF" />
+        <line x1="70" y1="50" x2="90" y2="50" stroke="#5B8DEF" />
+        <line x1="50" y1="70" x2="50" y2="90" stroke="#5B8DEF" />
+        <line x1="30" y1="50" x2="10" y2="50" stroke="#5B8DEF" />
+        <line x1="60" y1="32.68" x2="70" y2="15.36" stroke="#E6EAF2" opacity="0.85" />
+        <line x1="67.32" y1="40" x2="84.64" y2="30" stroke="#E6EAF2" opacity="0.85" />
+        <line x1="67.32" y1="60" x2="84.64" y2="70" stroke="#E6EAF2" opacity="0.85" />
+        <line x1="60" y1="67.32" x2="70" y2="84.64" stroke="#E6EAF2" opacity="0.85" />
+        <line x1="40" y1="67.32" x2="30" y2="84.64" stroke="#E6EAF2" opacity="0.85" />
+        <line x1="32.68" y1="60" x2="15.36" y2="70" stroke="#E6EAF2" opacity="0.85" />
+        <line x1="32.68" y1="40" x2="15.36" y2="30" stroke="#E6EAF2" opacity="0.85" />
+        <line x1="40" y1="32.68" x2="30" y2="15.36" stroke="#E6EAF2" opacity="0.85" />
+      </g>
+      <circle cx="50" cy="50" r="10" fill="#3DDC97" />
     </svg>
   );
 }

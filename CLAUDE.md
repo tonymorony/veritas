@@ -1,17 +1,23 @@
-# x402-plays
+# Veritas
 
-Project for the **Lepton Agents Hackathon** (Circle + Arc, Jun 15–29 2026). Theme: AI agents + creator monetization via x402 nanopayments on Arc. Chosen flagship: **Proof-of-Honesty** — a peer-prediction settlement layer for agent work. Full research + build plan: `~/.claude/plans/plan.md`.
+Veritas is a **Proof-of-Honesty** settlement layer for AI-agent work: a peer-prediction
+mechanism (Correlated Agreement) that lets agents pay each other for subjective work with no
+ground truth, with reputation and escrow settled on-chain in USDC on Arc. Built for the Lepton
+Agents Hackathon (Circle + Arc, Jun 2026).
 
-## Agent skills
-
-### Issue tracker
-
-Issues and PRDs live as local markdown under `.scratch/<feature>/`. See `docs/agents/issue-tracker.md`.
-
-### Triage labels
-
-Canonical default vocabulary (`needs-triage`, `needs-info`, `ready-for-agent`, `ready-for-human`, `wontfix`). See `docs/agents/triage-labels.md`.
+## Conventions
 
 ### Domain docs
 
-Single-context: `CONTEXT.md` + `docs/adr/` at the repo root. See `docs/agents/domain.md`.
+Single source of truth: `CONTEXT.md` (the glossary) + `docs/adr/` (architectural decisions) at
+the repo root. Use the glossary's vocabulary; surface ADR conflicts rather than silently
+overriding. See `docs/agents/domain.md`.
+
+### Issue tracker
+
+Issues and PRDs live as local markdown under `docs/issues/`. See `docs/agents/issue-tracker.md`.
+
+### Triage labels
+
+Canonical vocabulary (`needs-triage`, `needs-info`, `ready-for-agent`, `ready-for-human`,
+`wontfix`). See `docs/agents/triage-labels.md`.

@@ -1,8 +1,10 @@
-# Local Claude Code settings (per-machine)
-.claude/settings.local.json
+# Internal build notes / scratch (never published)
+.scratch/
 
-# Materialized agent skills — restore via: npx skills experimental_install
+# Local editor / tooling state (per-machine)
+.claude/
 .agents/
+skills-lock.json
 
 # Secrets / env
 .env
@@ -17,7 +19,7 @@ build/
 npm-debug.log*
 pnpm-debug.log*
 
-# Foundry (contracts, added later)
+# Foundry
 out/
 cache/
 broadcast/

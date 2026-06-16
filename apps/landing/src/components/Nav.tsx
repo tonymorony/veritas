@@ -30,13 +30,13 @@ export function Nav() {
           : "border-b border-transparent"
       }`}
     >
-      <Container className="flex h-16 items-center justify-between">
+      <Container className="relative flex h-16 items-center">
         <a href="#top" className="flex items-center gap-2.5" aria-label="Veritas home">
           <Mark className="h-7 w-7" />
           <span className="wordmark text-[1.15rem] text-fg">veritas</span>
         </a>
 
-        <nav className="hidden items-center gap-1 md:flex">
+        <nav className="absolute left-1/2 top-1/2 hidden -translate-x-1/2 -translate-y-1/2 items-center gap-1 md:flex">
           {links.map((l) => (
             <a
               key={l.label}
